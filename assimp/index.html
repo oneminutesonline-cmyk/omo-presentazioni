@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<style>body{margin:0} img{max-width:100%} [hidden]{display:none!important}</style>
+<title>OMO Agency per ASSIMP Italia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: brochure verticale su antracite. Apertura con titolo + video affiancati, poi sezioni a una colonna con griglie di schede, galleria video delle demo, chiusura con prenotazione. Colori e font del brand kit OMO (una sola veste, scura, voluta). */
+:root {
+  --bg: #1C2226;          /* antracite */
+  --panel: #232B30;
+  --line: #34404A;
+  --fg: #E4E6E1;          /* cemento chiaro */
+  --muted: #8E979C;       /* grigio medio */
+  --accent: #F2B705;      /* giallo cantiere */
+  --accent-ink: #1C2226;
+  --font-display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 17px; line-height: 1.55; }
+.wrap { max-width: 1080px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+.brand { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.logo { font-family: var(--font-display); font-weight: 900; font-size: 30px; letter-spacing: .04em; color: var(--accent); }
+.logo span { color: var(--fg); font-weight: 700; font-size: 18px; letter-spacing: .08em; margin-left: 8px; }
+.tag { font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+
+.hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 40px; align-items: center; margin-top: 36px; }
+.eyebrow { font-weight: 700; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin: 0 0 14px; }
+h1 { font-family: var(--font-display); font-weight: 900; text-transform: uppercase; font-size: clamp(44px, 7vw, 82px); line-height: .92; letter-spacing: .01em; margin: 0 0 20px; text-wrap: balance; }
+h1 em { font-style: normal; color: var(--accent); }
+.lead { font-size: 19px; color: var(--fg); max-width: 34em; margin: 0 0 26px; }
+.cta { display: inline-flex; align-items: center; gap: 10px; background: var(--accent); color: var(--accent-ink); font-weight: 700; text-decoration: none; padding: 15px 22px; border-radius: 6px; }
+.cta small { font-weight: 500; opacity: .75; }
+.video { position: relative; width: 100%; max-width: 360px; justify-self: center; aspect-ratio: 9 / 16; border-radius: 10px; overflow: hidden; background: #000; border: 1px solid var(--line); }
+.video video { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+section { margin-top: 72px; }
+h2 { font-family: var(--font-display); font-weight: 900; text-transform: uppercase; font-size: clamp(32px, 4.6vw, 48px); line-height: 1; margin: 0 0 14px; text-wrap: balance; }
+.intro { color: var(--muted); max-width: 40em; margin: 0 0 26px; }
+
+.grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.card { background: var(--panel); border-top: 3px solid var(--accent); padding: 20px 18px 22px; min-width: 0; }
+.card h3 { font-family: var(--font-display); font-weight: 900; text-transform: uppercase; font-size: 24px; line-height: 1.05; margin: 0 0 8px; }
+.card p { margin: 0; color: var(--fg); font-size: 15.5px; }
+
+.numbers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.num { border: 1px solid var(--line); padding: 22px 20px; min-width: 0; }
+.num b { display: block; font-family: var(--font-display); font-weight: 900; font-size: clamp(40px, 6vw, 60px); line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; }
+.num span { display: block; margin-top: 8px; font-size: 15px; color: var(--fg); }
+.clients { margin-top: 18px; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.clients strong { color: var(--fg); font-weight: 700; }
+
+.demos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.demo { min-width: 0; }
+.demo .video { max-width: none; }
+.demo h3 { font-weight: 700; font-size: 16px; margin: 10px 0 2px; }
+.demo p { margin: 0; color: var(--muted); font-size: 14px; }
+
+.partner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+.partner .card { border-top-color: var(--fg); }
+
+.close { margin-top: 80px; background: var(--accent); color: var(--accent-ink); padding: 36px 28px; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 24px; align-items: center; }
+.close h2 { color: var(--accent-ink); margin-bottom: 8px; }
+.close p { margin: 0; }
+.close .cta { background: var(--accent-ink); color: var(--accent); }
+.contacts { font-size: 15px; line-height: 1.9; user-select: all; }
+.contacts span { user-select: text; display: block; }
+footer { margin-top: 28px; color: var(--muted); font-size: 13px; }
+
+@media (max-width: 860px) {
+  .hero, .close, .partner { grid-template-columns: minmax(0, 1fr); }
+  .grid4, .demos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .numbers { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 460px) {
+  .grid4 { grid-template-columns: minmax(0, 1fr); }
+  body { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+
+<div class="wrap">
+  <header class="brand">
+    <div class="logo">OMO<span>AGENCY</span></div>
+    <div class="tag"><img src="logo.svg" alt="ASSIMP Italia" style="height:34px;background:#fff;padding:4px 8px;border-radius:4px;vertical-align:middle"></div>
+  </header>
+
+  <div class="hero">
+    <div>
+      <p class="eyebrow">Proposta per ASSIMP Italia</p>
+      <h1>Un secondo ufficio digitale <em>per le imprese di impermeabilizzazione</em></h1>
+      <p class="lead">OMO Agency riorganizza il lavoro d'ufficio dell'impresa e lo gestisce al posto di chi oggi lo fa a mano: documenti, scadenze, cantieri e preventivi. Meno tempo perso, meno costi d'ufficio. Non facciamo progettazione e non facciamo BIM.</p>
+      <a class="cta" href="https://cal.com/eleonora-saccucci-aveswz/30min" target="_blank" rel="noopener">Prenota una call di mezz'ora <small>gratis</small></a>
+    </div>
+    <div class="video">
+      <video src="video/gen-it.mp4" poster="video/gen-it.jpg" controls playsinline preload="metadata" aria-label="Video di presentazione di Eleonora Saccucci, OMO Agency"></video>
+    </div>
+  </div>
+
+  <section>
+    <h2>Chi siamo</h2>
+    <p class="intro">OMO Agency è una startup agile fondata da Eleonora Saccucci: lavora da più di un anno con imprese vere, in Italia e in Spagna. Il sistema è nato dentro una grande impresa del settore, dove la gestione di documenti, visite mediche, corsi e scadenze occupava quattro persone. Lo abbiamo costruito e validato lì, e solo dopo lo abbiamo portato ad altre imprese.</p>
+    <div class="numbers">
+      <div class="num"><b>60.000 €</b><span>risparmiati ogni anno da un'impresa con 4 persone in amministrazione</span></div>
+      <div class="num"><b>2</b><span>processi automatizzati in una Discovery, con risparmio per l'azienda</span></div>
+      <div class="num"><b>+1 anno</b><span>di lavoro sul mercato con clienti attivi</span></div>
+    </div>
+    <p class="clients">Lavorano con noi: <strong>Ediliziacrobatica · Alsina · Imprendo</strong></p>
+  </section>
+
+  <section>
+    <h2>Cosa facciamo per le imprese</h2>
+    <p class="intro">Un solo partner al posto di tanti strumenti scollegati. L'impresa sceglie da dove partire, poi il sistema cresce con lei.</p>
+    <div class="grid4">
+      <div class="card"><h3>App su misura</h3><p>Gestionali costruiti sull'impresa: operai, cantieri, commesse e preventivi in un unico posto.</p></div>
+      <div class="card"><h3>Documenti in regola</h3><p>Documenti di operai e subappaltatori sempre aggiornati, con scadenze e avvisi prima che diventino un problema.</p></div>
+      <div class="card"><h3>Agenti AI</h3><p>Il lavoro ripetitivo lo fa l'intelligenza artificiale: per esempio leggere le email e aprire le richieste.</p></div>
+      <div class="card"><h3>Formazione AI</h3><p>Corsi pratici per titolari e team, per usare l'AI nel lavoro di tutti i giorni.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Le soluzioni in pochi secondi</h2>
+    <p class="intro">Quattro esempi, uno per ogni reparto dell'impresa.</p>
+    <div class="demos">
+      <div class="demo"><div class="video"><video src="video/d1-it.mp4" poster="video/d1-it.jpg" controls playsinline preload="none" aria-label="Demo Amministrazione"></video></div><h3>Amministrazione</h3><p>Documenti degli operai e scadenze</p></div>
+      <div class="demo"><div class="video"><video src="video/d2-it.mp4" poster="video/d2-it.jpg" controls playsinline preload="none" aria-label="Demo Sicurezza e subappalti"></video></div><h3>Sicurezza</h3><p>Subappalti in regola</p></div>
+      <div class="demo"><div class="video"><video src="video/d3-it.mp4" poster="video/d3-it.jpg" controls playsinline preload="none" aria-label="Demo Cantiere"></video></div><h3>Cantiere</h3><p>Commesse, avanzamento e costi</p></div>
+      <div class="demo"><div class="video"><video src="video/d4-it.mp4" poster="video/d4-it.jpg" controls playsinline preload="none" aria-label="Demo Commerciale"></video></div><h3>Commerciale</h3><p>Preventivi in pochi minuti</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>I moduli</h2>
+    <p class="intro">Il sistema è modulare: l'impresa sceglie da dove partire. Prezzi indicativi, da confermare in base alle esigenze dell'impresa.</p>
+    <table style="width:100%;border-collapse:collapse;font-size:18px"><tr><td><b>Amministrazione</b></td><td style="text-align:right;color:#F2B705;font-weight:700">da solo: su richiesta</td></tr><tr><td><b>Sicurezza e subappalti</b></td><td style="text-align:right;color:#F2B705;font-weight:700">da solo: su richiesta</td></tr><tr><td><b>Cantiere</b></td><td style="text-align:right;color:#F2B705;font-weight:700">da solo: su richiesta</td></tr><tr><td><b>Commerciale</b></td><td style="text-align:right;color:#F2B705;font-weight:700">da solo: su richiesta</td></tr></table>
+    <p class="intro" style="margin-top:14px"><b>Pacchetto completo, tutti e 4 i moduli: 250 €/mese</b> + 3,5 € al mese per ogni operaio (esempio: impresa con 14 operai = 299 €/mese). <b>Attivazione: 2.500 € una tantum.</b> I moduli presi singolarmente costano di più.</p>
+  </section>
+
+  <section>
+    <h2>Come funziona</h2>
+    <p class="intro">Schermate della piattaforma con dati di esempio di un'impresa di impermeabilizzazioni (dati inventati).</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px"><figure style="margin:0"><img src="demo/s1.png" alt="Cruscotto" style="width:100%;border-radius:6px;border:1px solid #34404A"><figcaption style="font-size:13px;color:#8E979C;margin-top:4px">Cruscotto</figcaption></figure><figure style="margin:0"><img src="demo/s2.png" alt="Cantieri" style="width:100%;border-radius:6px;border:1px solid #34404A"><figcaption style="font-size:13px;color:#8E979C;margin-top:4px">Cantieri</figcaption></figure><figure style="margin:0"><img src="demo/s3.png" alt="Operai e documenti" style="width:100%;border-radius:6px;border:1px solid #34404A"><figcaption style="font-size:13px;color:#8E979C;margin-top:4px">Operai e documenti</figcaption></figure><figure style="margin:0"><img src="demo/s4.png" alt="Preventivi" style="width:100%;border-radius:6px;border:1px solid #34404A"><figcaption style="font-size:13px;color:#8E979C;margin-top:4px">Preventivi</figcaption></figure></div>
+    <p class="intro" style="margin-top:18px"><a href="brochure_OMO_ASSIMP_IT.pdf" style="color:#F2B705">Scarica la brochure in PDF</a></p>
+  </section>
+
+  <section>
+    <h2>Perché per ASSIMP</h2>
+    <div class="partner">
+      <div class="card"><h3>Per i soci</h3><p>Un aiuto concreto nel lavoro d'ufficio, già attivo e pronto da usare.</p></div>
+      <div class="card"><h3>Per l'associazione</h3><p>Un servizio in più da offrire ai soci, senza lavoro in più per voi.</p></div>
+    </div>
+    <p class="intro" style="margin-top:18px">Il sistema è già attivo in imprese del settore: quando ASSIMP lo propone ai soci, non c'è nulla da costruire. Il modo di collaborare lo definiamo insieme.</p>
+  </section>
+
+  <div class="close">
+    <div>
+      <h2>Parliamone</h2>
+      <p>Mezz'ora, gratis e senza impegno, con Eleonora Saccucci.</p>
+      <p style="margin-top:18px"><a class="cta" href="https://cal.com/eleonora-saccucci-aveswz/30min" target="_blank" rel="noopener">Prenota la call</a></p>
+    </div>
+    <div class="contacts">
+      <span>WhatsApp e telefono: +34 610 453 471</span>
+      <span>Email: info@omosupport.com</span>
+      <span>Sito: <a href="https://1minutesonline.agency/it/" target="_blank" rel="noopener" style="color:inherit">1minutesonline.agency</a></span>
+    </div>
+  </div>
+  <footer>OMO Agency · Eleonora Saccucci · Italia e Spagna</footer>
+</div>
+
+</html>
