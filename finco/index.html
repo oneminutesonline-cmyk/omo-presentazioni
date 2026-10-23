@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>OMO Agency per Finco</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: brochure verticale su antracite. Apertura con titolo + video affiancati, poi sezioni a una colonna con griglie di schede, galleria video delle demo, chiusura con prenotazione. Colori e font del brand kit OMO (una sola veste, scura, voluta). */
+:root {
+  --bg: #1C2226;          /* antracite */
+  --panel: #232B30;
+  --line: #34404A;
+  --fg: #E4E6E1;          /* cemento chiaro */
+  --muted: #8E979C;       /* grigio medio */
+  --accent: #F2B705;      /* giallo cantiere */
+  --accent-ink: #1C2226;
+  --font-display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 17px; line-height: 1.55; }
+.wrap { max-width: 1080px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+.brand { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.logo { font-family: var(--font-display); font-weight: 900; font-size: 30px; letter-spacing: .04em; color: var(--accent); }
+.logo span { color: var(--fg); font-weight: 700; font-size: 18px; letter-spacing: .08em; margin-left: 8px; }
+.tag { font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+
+.hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 40px; align-items: center; margin-top: 36px; }
+.eyebrow { font-weight: 700; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin: 0 0 14px; }
+h1 { font-family: var(--font-display); font-weight: 900; text-transform: uppercase; font-size: clamp(44px, 7vw, 82px); line-height: .92; letter-spacing: .01em; margin: 0 0 20px; text-wrap: balance; }
+h1 em { font-style: normal; color: var(--accent); }
+.lead { font-size: 19px; color: var(--fg); max-width: 34em; margin: 0 0 26px; }
+.cta { display: inline-flex; align-items: center; gap: 10px; background: var(--accent); color: var(--accent-ink); font-weight: 700; text-decoration: none; padding: 15px 22px; border-radius: 6px; }
+.cta small { font-weight: 500; opacity: .75; }
+.video { position: relative; width: 100%; max-width: 360px; justify-self: center; aspect-ratio: 9 / 16; border-radius: 10px; overflow: hidden; background: #000; border: 1px solid var(--line); }
+.video video { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+section { margin-top: 72px; }
+h2 { font-family: var(--font-display); font-weight: 900; text-transform: uppercase; font-size: clamp(32px, 4.6vw, 48px); line-height: 1; margin: 0 0 14px; text-wrap: balance; }
+.intro { color: var(--muted); max-width: 40em; margin: 0 0 26px; }
+
+.grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.card { background: var(--panel); border-top: 3px solid var(--accent); padding: 20px 18px 22px; min-width: 0; }
+.card h3 { font-family: var(--font-display); font-weight: 900; text-transform: uppercase; font-size: 24px; line-height: 1.05; margin: 0 0 8px; }
+.card p { margin: 0; color: var(--fg); font-size: 15.5px; }
+
+.numbers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.num { border: 1px solid var(--line); padding: 22px 20px; min-width: 0; }
+.num b { display: block; font-family: var(--font-display); font-weight: 900; font-size: clamp(40px, 6vw, 60px); line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; }
+.num span { display: block; margin-top: 8px; font-size: 15px; color: var(--fg); }
+.clients { margin-top: 18px; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.clients strong { color: var(--fg); font-weight: 700; }
+
+.demos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.demo { min-width: 0; }
+.demo .video { max-width: none; }
+.demo h3 { font-weight: 700; font-size: 16px; margin: 10px 0 2px; }
+.demo p { margin: 0; color: var(--muted); font-size: 14px; }
+
+.partner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+.partner .card { border-top-color: var(--fg); }
+
+.close { margin-top: 80px; background: var(--accent); color: var(--accent-ink); padding: 36px 28px; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 24px; align-items: center; }
+.close h2 { color: var(--accent-ink); margin-bottom: 8px; }
+.close p { margin: 0; }
+.close .cta { background: var(--accent-ink); color: var(--accent); }
+.contacts { font-size: 15px; line-height: 1.9; user-select: all; }
+.contacts span { user-select: text; display: block; }
+footer { margin-top: 28px; color: var(--muted); font-size: 13px; }
+
+@media (max-width: 860px) {
+  .hero, .close, .partner { grid-template-columns: minmax(0, 1fr); }
+  .grid4, .demos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .numbers { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 460px) {
+  .grid4 { grid-template-columns: minmax(0, 1fr); }
+  body { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+
+.ctas { display:flex; gap:12px; flex-wrap:wrap; margin-top:22px; }
+.sub { font-size:19px; margin:0 0 20px; max-width:34em; }
+.inbreve { background:var(--panel); border-left:4px solid var(--accent); padding:6px 20px; margin:0; }
+.inbreve h2 { font-size:22px; margin:12px 0 4px; letter-spacing:.06em; color:var(--accent); }
+.inbreve dl { margin:0; } .inbreve dt { font-family:var(--font-display); font-weight:900; text-transform:uppercase; font-size:21px; margin-top:10px; }
+.inbreve dd { margin:2px 0 10px; color:var(--fg); font-size:16px; }
+.vplay { text-align:center; margin:10px 0 0; font-weight:600; }
+.vlink { display:block; text-align:center; margin-top:10px; font-weight:600; }
+.strip6 { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px; }
+.step { background:var(--panel); border-top:3px solid var(--accent); padding:14px 14px 16px; min-width:0; }
+.step b { display:block; font-family:var(--font-display); font-weight:900; font-size:40px; line-height:1; color:var(--accent); }
+.step span { display:block; font-weight:600; font-size:15px; margin-top:6px; }
+.grid3 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+.card.light { border-top-color:var(--fg); }
+.card.entry { background:var(--accent); } .card.entry h3, .card.entry p { color:var(--accent-ink); }
+.flow { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
+.flow div { border:1px solid var(--line); padding:16px; font-weight:600; }
+.flow b { color:var(--accent); font-family:var(--font-display); font-size:30px; margin-right:8px; }
+.note { color:var(--muted); font-size:14px; margin-top:14px; }
+.shots { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+.shots figure { margin:0; } .shots img { width:100%; border-radius:6px; border:1px solid var(--line); display:block; }
+.shots figcaption { font-size:13px; color:var(--muted); margin-top:4px; }
+.calc { background:var(--panel); border-top:4px solid var(--accent); padding:24px 22px 20px; }
+.calc .fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; margin-bottom:20px; }
+.calc label { display:block; font-weight:600; font-size:15px; margin-bottom:6px; }
+.calc .inp { display:flex; gap:6px; align-items:stretch; }
+.calc input { width:100%; min-width:0; font:inherit; font-size:24px; font-weight:700; color:var(--fg); background:var(--bg); border:2px solid var(--line); border-radius:6px; padding:10px 12px; text-align:center; }
+.calc input:focus-visible { outline:3px solid var(--accent); outline-offset:2px; border-color:var(--accent); }
+.calc .stp { flex:0 0 52px; font:inherit; font-size:26px; font-weight:700; color:var(--accent-ink); background:var(--accent); border:0; border-radius:6px; cursor:pointer; }
+.calc .res { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+.calc .r { border:1px solid var(--line); padding:16px 14px; min-width:0; }
+.calc .r b { display:block; font-family:var(--font-display); font-weight:900; font-size:clamp(34px,6vw,56px); line-height:1; color:var(--accent); font-variant-numeric:tabular-nums; }
+.calc .r span { display:block; margin-top:6px; font-size:15px; }
+.calc .err { color:#ffb4a8; font-weight:600; margin:0 0 12px; }
+.calc .fine { font-size:14px; color:var(--muted); margin:16px 0 0; }
+.calc .hyp { font-size:15px; color:var(--fg); margin:0 0 18px; }
+@media (max-width:860px) { .strip6, .grid3, .flow { grid-template-columns:repeat(2,minmax(0,1fr)); } .grid3 .card:last-child { grid-column:1/-1; } }
+@media (max-width:560px) { .calc .res, .calc .fields { grid-template-columns:minmax(0,1fr); } }
+@media (max-width:460px) { .shots, .strip6, .grid3, .flow { grid-template-columns:minmax(0,1fr); } .cta { width:100%; justify-content:center; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="brand"><div class="logo">OMO<span>AGENCY</span></div><div class="tag">Per Finco</div></header>
+
+  <div class="hero">
+    <div>
+      <p class="eyebrow">Presentazione per Finco</p>
+      <h1>Un servizio in più <em>per le imprese associate</em></h1>
+      <p class="sub">L'ufficio digitale per le imprese edili e specialistiche associate, con la formazione AI finanziata come primo passo.</p>
+      <aside class="inbreve" aria-labelledby="inbreve-t">
+        <h2 id="inbreve-t">In breve</h2>
+        <dl>
+          <dt>Cosa è OMO</dt><dd>Un'impresa giovane, nata a novembre 2025, con un metodo scalabile, nato nelle imprese e sviluppato nelle imprese.</dd>
+          <dt>Cosa proponiamo</dt><dd>Si parte dalla formazione AI finanziata, poi discovery sui processi e moduli del sistema.</dd>
+          <dt>Cosa chiediamo</dt><dd>Una call di 15 minuti.</dd>
+        </dl>
+      </aside>
+      <div class="ctas"><a class="cta" href="https://cal.com/eleonora-saccucci-aveswz/15min" target="_blank" rel="noopener">Prenota una call di 15 minuti <small>gratis</small></a></div>
+    </div>
+    <div>
+      <div class="video"><video src="video/finco.mp4" poster="video/finco-poster.jpg" controls playsinline preload="metadata" aria-label="Video di presentazione di OMO Agency per Finco">Il browser non riproduce il video: <a href="video/finco.mp4">guarda il video</a>.</video></div>
+      <p class="vplay">Premi play: il video dura 52 secondi</p>
+      <a class="vlink" href="video/finco.mp4" target="_blank" rel="noopener">Guarda il video</a>
+    </div>
+  </div>
+
+  <section id="calcolatrice">
+    <h2>Quanto vale il modulo Amministrazione</h2>
+    <p class="intro">Le associate possono usarla insieme ai loro soci, con i dati reali dell'impresa.</p>
+    <div class="calc">
+      <p class="hyp">Ipotesi di partenza: il solo modulo Amministrazione libera una persona in amministrazione che costa 4.000 € al mese. Cambia i valori con quelli reali.</p>
+      <div class="fields">
+        <div><label for="calc-persone">Persone che il modulo Amministrazione libera</label>
+          <div class="inp"><button type="button" class="stp" id="calc-meno" aria-label="Diminuisci di mezza persona">&minus;</button><input id="calc-persone" type="text" inputmode="decimal" autocomplete="off" value="1"><button type="button" class="stp" id="calc-piu" aria-label="Aumenta di mezza persona">+</button></div></div>
+        <div><label for="calc-costo">Costo mensile di una persona in amministrazione (€)</label>
+          <div class="inp"><input id="calc-costo" type="text" inputmode="decimal" autocomplete="off" value="4.000"></div></div>
+      </div>
+      <p class="err" id="calc-err" role="alert" hidden>Inserisci da 0,5 a 20 persone e un costo mensile valido.</p>
+      <div class="res" aria-live="polite" aria-atomic="true">
+        <div class="r"><b id="r-mese">4.000 €</b><span>Al mese</span></div>
+        <div class="r"><b id="r-anno">48.000 €</b><span>All'anno</span></div>
+        <div class="r"><b id="r-ore">173</b><span>Ore d'ufficio liberate al mese</span></div>
+      </div>
+      <p class="fine">Stima basata sull'ipotesi del modulo Amministrazione: modifica i valori con i dati reali dell'impresa. Non è una promessa di risultato e non include il costo del sistema.</p>
+      <p class="fine">Ore: una persona a tempo pieno = 40 ore a settimana, cioè circa 173 ore al mese (40 × 52 ÷ 12).</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Il metodo in sei passi</h2>
+    <p class="intro">Si parte dalle persone e dai processi, non dal software. Lo stesso percorso in ogni impresa.</p>
+    <div class="strip6"><div class="step"><b>1</b><span>Alfabetizzazione AI per tutti</span></div><div class="step"><b>2</b><span>Interviste per reparto</span></div><div class="step"><b>3</b><span>Mappatura dei processi</span></div><div class="step"><b>4</b><span>Discovery</span></div><div class="step"><b>5</b><span>Priorità</span></div><div class="step"><b>6</b><span>Sviluppo</span></div></div>
+  </section>
+
+  <section>
+    <h2>Chi siamo</h2>
+    <p class="intro">OMO Agency è stata fondata da Eleonora Saccucci, Founder &amp; Automation Specialist, e lavora con imprese edili in Italia e in Spagna. Il sistema è nato dentro una grande impresa del settore, dove documenti, visite mediche, corsi e scadenze occupavano quattro persone. Lo abbiamo costruito e validato lì, e solo dopo lo abbiamo portato ad altre imprese.</p>
+    <div class="numbers">
+      <div class="num"><b>60.000 €</b><span>risparmiati ogni anno da un'impresa con 4 persone in amministrazione</span></div>
+      <div class="num"><b>6</b><span>passi, gli stessi in ogni impresa: è il metodo che si ripete</span></div>
+      <div class="num"><b>2</b><span>mercati seguiti direttamente: Italia e Spagna</span></div>
+    </div>
+    <p class="clients">Lavorano con noi: <strong>Ediliziacrobatica · Alsina · Imprendo</strong></p>
+    <p class="note">Eleonora Saccucci è stata intervistata da Formedil al SAIE Bologna 2026.</p>
+  </section>
+
+  <section>
+    <h2>Cosa proponiamo: si parte dalla formazione AI finanziata</h2>
+    <p class="intro">È il prodotto d'ingresso: abbassa la barriera e poi apre al sistema completo. Un percorso a gradini.</p>
+    <div class="grid3"><div class="card entry"><h3>1. Formazione AI finanziata</h3><p>Per titolari e team. La formazione può essere finanziata con fondi interprofessionali o bandi: ogni azienda sceglie il suo fondo e studiamo insieme il caso.</p></div><div class="card"><h3>2. Discovery sui processi</h3><p>Mappiamo come lavora l'ufficio e scegliamo le priorità.</p></div><div class="card"><h3>3. Moduli del sistema</h3><p>Amministrazione, Sicurezza e subappalti, Cantiere, Commerciale: si parte da dove serve.</p></div></div>
+    <p class="note">Finco può portare la formazione alle associate come webinar.</p>
+  </section>
+
+  <section>
+    <h2>Cosa cambia per Finco</h2>
+    <div class="grid3"><div class="card light"><h3>Per le associazioni</h3><p>Un servizio concreto da offrire ai soci, accanto a consulenza legale, fiscale e sulla sicurezza e alle convenzioni già attive.</p></div><div class="card light"><h3>Per le imprese associate</h3><p>Un ufficio digitale che funziona e una formazione AI per titolari e team. Un solo percorso, da dove serve.</p></div><div class="card light"><h3>I canali di Finco</h3><p>Webinar e formazione per soci e non soci, newsletter mensile, rivista «Casa&amp;Clima»: i canali che Finco già usa.</p></div></div>
+    <p class="note">Si parte da una associazione apripista. Tra le più vicine al lavoro delle imprese edili e specialistiche: AIPAA, UNICMI, PILE. La scelta la facciamo con voi.</p>
+  </section>
+
+  <section>
+    <h2>Scalabile: si parte da dove serve</h2>
+    <p class="intro">Quattro moduli: l'impresa sceglie da dove iniziare. Gestionali su misura, stesso metodo in Italia e in Spagna.</p>
+    <div class="grid4"><div class="card"><h3>Amministrazione</h3><p>Documenti, fatture e scadenze, con avvisi automatici.</p></div><div class="card"><h3>Sicurezza e subappalti</h3><p>Documenti di operai e subappaltatori sempre in regola.</p></div><div class="card"><h3>Cantiere</h3><p>Cantieri, squadre e mezzi in un'unica schermata.</p></div><div class="card"><h3>Commerciale</h3><p>Preventivi chiari, pronti da inviare.</p></div></div>
+  </section>
+
+  <section>
+    <h2>Le soluzioni in pochi secondi</h2>
+    <p class="intro">Quattro esempi, uno per ogni reparto dell'impresa.</p>
+    <div class="demos"><div class="demo"><div class="video"><video src="video/d1-it.mp4" poster="video/d1-it.jpg" controls playsinline preload="none" aria-label="Demo Amministrazione"></video></div><h3>Amministrazione</h3><p>Documenti degli operai e scadenze</p></div><div class="demo"><div class="video"><video src="video/d2-it.mp4" poster="video/d2-it.jpg" controls playsinline preload="none" aria-label="Demo Sicurezza"></video></div><h3>Sicurezza</h3><p>Subappalti in regola</p></div><div class="demo"><div class="video"><video src="video/d3-it.mp4" poster="video/d3-it.jpg" controls playsinline preload="none" aria-label="Demo Cantiere"></video></div><h3>Cantiere</h3><p>Commesse, avanzamento e costi</p></div><div class="demo"><div class="video"><video src="video/d4-it.mp4" poster="video/d4-it.jpg" controls playsinline preload="none" aria-label="Demo Commerciale"></video></div><h3>Commerciale</h3><p>Preventivi in pochi minuti</p></div></div>
+  </section>
+
+  <section>
+    <h2>Come funziona</h2>
+    <p class="intro">Schermate della piattaforma con dati di esempio (inventati).</p>
+    <div class="shots"><figure><img src="demo/s1.png" alt="Cruscotto" loading="lazy"><figcaption>Cruscotto</figcaption></figure><figure><img src="demo/s2.png" alt="Cantieri" loading="lazy"><figcaption>Cantieri</figcaption></figure><figure><img src="demo/s3.png" alt="Operai e documenti" loading="lazy"><figcaption>Operai e documenti</figcaption></figure><figure><img src="demo/s4.png" alt="Preventivi" loading="lazy"><figcaption>Preventivi</figcaption></figure></div>
+  </section>
+
+  <section>
+    <h2>Come si parte</h2>
+    <div class="flow"><div><b>1</b>Call di 15 minuti</div><div><b>2</b>Associazione apripista e webinar sulla formazione AI finanziata</div><div><b>3</b>Caso misurato su alcune imprese associate</div><div><b>4</b>Convenzione per le associate</div></div>
+    <p class="note">Finco: 40 associazioni, 13,2 mila aziende, 130 mila dipendenti, 31 miliardi € (fonte: Finco Corporate Profile 2025). Il modo di collaborare lo definiamo insieme in call.</p>
+  </section>
+
+  <div class="close">
+    <div>
+      <h2>Parliamone</h2>
+      <p>Un quarto d'ora, gratis e senza impegno, con Eleonora Saccucci.</p>
+      <p style="margin-top:18px"><a class="cta" href="https://cal.com/eleonora-saccucci-aveswz/15min" target="_blank" rel="noopener">Prenota la call di 15 minuti</a></p>
+      <p style="margin-top:12px"><a href="brochure_OMO_Finco_IT.pdf" style="color:inherit">Scarica la brochure in PDF</a></p>
+    </div>
+    <div class="contacts">
+      <span>WhatsApp e telefono: +34 610 453 471</span>
+      <span>Email: info@omosupport.com</span>
+    </div>
+  </div>
+  <footer>OMO Agency · Eleonora Saccucci · Italia e Spagna · Il sito completo: <a href="https://1minutesonline.agency/it/" target="_blank" rel="noopener" style="color:inherit">1minutesonline.agency</a></footer>
+</div>
+<script>
+/* Calcolatrice: stessa formula di calcola() in comune_nexum_finco.py (testata in test_nexum_finco.py) */
+function calcola(persone, costo) {
+  var mese = persone * costo;
+  return { mese: mese, anno: mese * 12, ore: Math.round(persone * 40 * 52 / 12) };
+}
+(function () {
+  var p = document.getElementById('calc-persone'), c = document.getElementById('calc-costo'), err = document.getElementById('calc-err');
+  function leggi(s) {
+    s = String(s).replace(/[\s€]/g, '');
+    if (/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) s = s.replace(/\./g, '');
+    return parseFloat(s.replace(',', '.'));
+  }
+  function eur(n) { return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + '\u00a0€'; }
+  function aggiorna() {
+    var n = leggi(p.value), k = leggi(c.value);
+    if (!(n >= 0.5 && n <= 20) || !(k >= 0)) { err.hidden = false; return; }
+    err.hidden = true;
+    var r = calcola(n, k);
+    document.getElementById('r-mese').textContent = eur(r.mese);
+    document.getElementById('r-anno').textContent = eur(r.anno);
+    document.getElementById('r-ore').textContent = String(r.ore);
+  }
+  function passo(d) {
+    var n = leggi(p.value); if (!(n >= 0.5)) n = 1;
+    n = Math.min(20, Math.max(0.5, n + d));
+    p.value = String(n).replace('.', ',');
+    aggiorna();
+  }
+  p.addEventListener('input', aggiorna); c.addEventListener('input', aggiorna);
+  document.getElementById('calc-meno').addEventListener('click', function () { passo(-0.5); });
+  document.getElementById('calc-piu').addEventListener('click', function () { passo(0.5); });
+})();
+</script>
+</body>
+</html>
