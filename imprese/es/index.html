@@ -170,7 +170,7 @@ footer { margin-top: 28px; color: var(--muted); font-size: 13px; }
 <script>
 // Link personale del commerciale: #codice -> ref=codice sulla prenotazione (vedi LINK_COMMERCIALI.md)
 (function () {
-  var codes = ["antonio", "gianfranco", "danilo", "andrea", "stefania", "diretto"];
+  var codes = ["antonio", "gianfranco", "danilo", "andrea", "stefania", "silvia", "diretto"];
   var h = (location.hash || "").replace("#", "").toLowerCase();
   var ref = codes.indexOf(h) >= 0 ? h : "diretto";
   document.querySelectorAll("a.book").forEach(function (a) { a.href = "https://cal.com/eleonora-saccucci-aveswz/15min?ref=" + ref; });
