@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Hub OMO e moduli</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* Layout: pagina a una colonna centrata, sezioni separate da titoli; token di colore sotto. */
+:root {
+  --bg: #F2F4F6; --surface: #FFFFFF; --ink: #13202D; --muted: #55667A; --line: #D3DBE3;
+  --accent: #D9480F; --accent-soft: #FDE9DD; --hub: #13202D; --hub-ink: #FFFFFF;
+  --ok: #1B7A4B; --ok-soft: #DDF3E7; --warn: #8A5A00; --warn-soft: #FBEFCF; --bad: #B42318; --bad-soft: #FBE1DD;
+  --font-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D1620; --surface: #15222E; --ink: #E7ECF1; --muted: #93A4B5; --line: #2B3B4A;
+    --accent: #FF8A4C; --accent-soft: #3A2315; --hub: #E7ECF1; --hub-ink: #0D1620;
+    --ok: #52C88F; --ok-soft: #153126; --warn: #E8B04A; --warn-soft: #34290F; --bad: #F2796D; --bad-soft: #3A1B18;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D1620; --surface: #15222E; --ink: #E7ECF1; --muted: #93A4B5; --line: #2B3B4A;
+  --accent: #FF8A4C; --accent-soft: #3A2315; --hub: #E7ECF1; --hub-ink: #0D1620;
+  --ok: #52C88F; --ok-soft: #153126; --warn: #E8B04A; --warn-soft: #34290F; --bad: #F2796D; --bad-soft: #3A1B18;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+  padding-block: 24px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 980px; margin: 0 auto; display: grid; gap: 28px; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(28px, 5vw, 40px); letter-spacing: -0.02em; }
+h2 { font-size: 21px; letter-spacing: -0.01em; }
+h3 { font-size: 16px; }
+p { margin: 0; }
+.eyebrow { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.lead { color: var(--muted); max-width: 62ch; font-size: 16px; }
+.head { display: grid; gap: 10px; }
+.tag { display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); width: fit-content; }
+.num { font-variant-numeric: tabular-nums; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th { text-align: left; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); font-weight: 600; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+td.r, th.r { text-align: right; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.note { font-size: 13px; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* Layout: l'Hub al centro di una griglia 3x5 che ricalca il disegno di Ele (A in alto, B C D a destra, E in basso, F G a sinistra). */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; }
+.controls { display: grid; gap: 12px; }
+.controls label { font-weight: 600; font-size: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+input[type="number"] { font: inherit; width: 120px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); font-variant-numeric: tabular-nums; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: inherit; font-size: 13px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.map { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px 28px; grid-template-areas: ". a ." "g . b" ". h c" "f . d" ". e ."; padding: 6px 0; }
+.lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: visible; }
+.hub { grid-area: h; z-index: 1; align-self: center; justify-self: center; width: min(100%, 190px); aspect-ratio: 1; border-radius: 50%; background: var(--hub); color: var(--hub-ink); display: grid; place-content: center; text-align: center; padding: 14px; gap: 4px; }
+.hub b { font-family: var(--font-display); font-size: 34px; letter-spacing: 0.04em; line-height: 1; }
+.hub span { font-size: 12px; opacity: 0.85; line-height: 1.3; }
+.mod { align-self: center; z-index: 1; font: inherit; color: var(--ink); text-align: left; background: var(--surface); border: 2px solid var(--accent); border-radius: 10px; padding: 12px; display: grid; gap: 8px; cursor: pointer; min-width: 0; }
+.mod[aria-disabled="true"] { cursor: default; }
+.mod[aria-pressed="false"] { border-style: dashed; border-color: var(--line); opacity: 0.6; }
+.mod[aria-pressed="false"] .nm { text-decoration: line-through; }
+.mod .top { display: flex; gap: 8px; align-items: center; }
+.badge { flex: none; width: 26px; height: 26px; border-radius: 6px; background: var(--accent); color: #fff; display: grid; place-content: center; font-family: var(--font-display); font-weight: 700; font-size: 14px; }
+.mod[aria-pressed="false"] .badge { background: var(--muted); }
+.nm { font-weight: 600; font-size: 14px; line-height: 1.25; }
+.fees { display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: 13px; font-variant-numeric: tabular-nums; }
+.fees dt { color: var(--muted); }
+.fees dd { margin: 0; font-weight: 600; text-align: right; }
+.sub { font-size: 12px; color: var(--muted); }
+.mod[data-c="A"] { grid-area: a; } .mod[data-c="B"] { grid-area: b; } .mod[data-c="C"] { grid-area: c; } .mod[data-c="D"] { grid-area: d; }
+.mod[data-c="E"] { grid-area: e; } .mod[data-c="F"] { grid-area: f; } .mod[data-c="G"] { grid-area: g; }
+.totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.tot { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 2px; }
+.tot small { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+.tot strong { font-family: var(--font-display); font-size: 26px; font-variant-numeric: tabular-nums; }
+.tot.main { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.tot.main small { color: inherit; opacity: 0.75; }
+.packnote { font-size: 14px; padding: 10px 12px; border-radius: 8px; background: var(--ok-soft); color: var(--ok); font-weight: 500; }
+.packnote[hidden] { display: none; }
+.bar { height: 8px; border-radius: 2px; background: var(--accent); min-width: 2px; margin-top: 4px; }
+.bar.alt { background: var(--ink); }
+tr.fascia { cursor: pointer; }
+tr.fascia[aria-current="true"] td { background: var(--accent-soft); }
+tr.fascia td:first-child { font-weight: 600; white-space: nowrap; }
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.step { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--surface); display: grid; gap: 2px; }
+.step small { color: var(--muted); }
+.step strong { font-family: var(--font-display); font-size: 20px; }
+@media (max-width: 720px) {
+  .map { grid-template-columns: minmax(0, 1fr); grid-template-areas: "h" "a" "b" "c" "d" "e" "f" "g"; }
+  .lines { display: none; }
+  .hub { width: 150px; }
+  .hub b { font-size: 28px; }
+}
+</style>
+</head>
+<body>
+
+<main class="wrap">
+  <header class="head">
+    <p class="eyebrow">OMO Agency · listino interno per i commerciali</p>
+    <h1>Hub OMO e i sette moduli</h1>
+    <p class="lead">Un centro dove vivono i dati dell'impresa, sette moduli che si agganciano. Si parte da ciò che serve all'impresa e si compone l'offerta: da 11 lavoratori tocca un modulo per aggiungerlo o toglierlo. Fino a 10 lavoratori si vende un solo pacchetto con tutti i moduli.</p>
+    <span class="tag">Bozza del 17/11/2026 · prezzi IVA esclusa</span>
+  </header>
+
+  <section class="panel controls" aria-label="Dimensione dell'impresa">
+    <label for="n">Quanti lavoratori ha l'impresa?</label>
+    <div class="row">
+      <input id="n" type="number" min="0" max="2000" step="1" value="180" inputmode="numeric">
+      <div class="chips" id="chips" role="group" aria-label="Fasce rapide"></div>
+    </div>
+    <p class="note" id="fasciaNote"></p>
+  </section>
+
+  <section aria-label="L'Hub e i moduli" class="map" id="map">
+    <svg class="lines" id="lines" aria-hidden="true"></svg>
+    <div class="hub"><b>HUB</b><span>i dati dell'impresa in un posto solo</span></div>
+  </section>
+
+  <section class="totals" aria-live="polite">
+    <div class="tot"><small>Setup una tantum</small><strong id="tSetup"></strong><span class="note" id="tSetupN"></span></div>
+    <div class="tot main"><small>Canone mensile</small><strong id="tCanone"></strong><span class="note" id="tCanoneN"></span></div>
+    <div class="tot"><small>Primo anno</small><strong id="tAnno"></strong><span class="note">setup + 12 canoni</span></div>
+    <div class="tot"><small>Per lavoratore al mese</small><strong id="tPer"></strong><span class="note">solo il canone</span></div>
+  </section>
+  <p class="packnote" id="pack" hidden></p>
+
+  <section class="head" aria-label="Listino per fascia">
+    <h2>Quanto costa tutto l'Hub, per dimensione</h2>
+    <p class="lead">Più l'impresa è grande, più il costo per lavoratore scende. Tocca una riga per vederla nell'Hub. Importi calcolati al massimo di ogni fascia.</p>
+    <div class="scroll panel" style="padding:6px 8px">
+      <table>
+        <thead><tr><th>Lavoratori</th><th>Setup una tantum</th><th>Canone mensile</th><th class="r">Al lavoratore / mese</th></tr></thead>
+        <tbody id="fasce"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="head" aria-label="Quota per lavoratore del modulo A">
+    <h2>Modulo A: la quota per lavoratore</h2>
+    <p class="lead">Oltre al canone fisso, il modulo A costa una quota per ogni lavoratore gestito, uguale a qualsiasi dimensione: più lavoratori ha l'impresa, più cresce il canone.</p>
+    <div class="steps" id="steps"></div>
+  </section>
+
+  <p class="note">Spese server: a parte, importo da definire. Con tutti e sette i moduli e fino a 10 lavoratori vale il Pack Start a prezzo fisso.</p>
+</main>
+
+<script>
+const P = {
+ "maxLavoratori": 2000,
+ "moduli": [
+  {
+   "c": "A",
+   "nome": "Gestione documenti operai",
+   "setup": 2500,
+   "canone": 250
+  },
+  {
+   "c": "B",
+   "nome": "Gestione clienti",
+   "setup": 1500,
+   "canone": 49
+  },
+  {
+   "c": "C",
+   "nome": "Fatturazione diretta",
+   "setup": 800,
+   "canone": 89
+  },
+  {
+   "c": "D",
+   "nome": "Gestione cantieri e planning",
+   "setup": 2500,
+   "canone": 150
+  },
+  {
+   "c": "E",
+   "nome": "App ragazzi in cantiere",
+   "setup": 800,
+   "canone": 49
+  },
+  {
+   "c": "F",
+   "nome": "Fornitori",
+   "setup": 200,
+   "canone": 20
+  },
+  {
+   "c": "G",
+   "nome": "Subappaltatori",
+   "setup": 1200,
+   "canone": 80
+  }
+ ],
+ "fasce": [
+  {
+   "da": 0,
+   "a": 10,
+   "et": "0-10",
+   "cs": 55,
+   "cc": 42
+  },
+  {
+   "da": 11,
+   "a": 20,
+   "et": "11-20",
+   "cs": 70,
+   "cc": 60
+  },
+  {
+   "da": 21,
+   "a": 30,
+   "et": "21-30",
+   "cs": 80,
+   "cc": 70
+  },
+  {
+   "da": 31,
+   "a": 40,
+   "et": "31-40",
+   "cs": 85,
+   "cc": 80
+  },
+  {
+   "da": 41,
+   "a": 50,
+   "et": "41-50",
+   "cs": 90,
+   "cc": 90
+  },
+  {
+   "da": 51,
+   "a": 100,
+   "et": "51-100",
+   "cs": 95,
+   "cc": 95
+  },
+  {
+   "da": 101,
+   "a": 250,
+   "et": "101-250",
+   "cs": 100,
+   "cc": 100
+  },
+  {
+   "da": 251,
+   "a": 500,
+   "et": "251-500",
+   "cs": 130,
+   "cc": 125
+  },
+  {
+   "da": 501,
+   "a": 1000,
+   "et": "501-1000",
+   "cs": 170,
+   "cc": 160
+  },
+  {
+   "da": 1001,
+   "a": 2000,
+   "et": "1001-2000",
+   "cs": 230,
+   "cc": 220
+  }
+ ],
+ "scaglioni": [
+  {
+   "upTo": 2000,
+   "cents": 350
+  }
+ ],
+ "pack": {
+  "setup": 5200,
+  "canone": 299,
+  "max": 10
+ }
+};
+// Calcolatore del listino Hub: stessa logica di listino.py (importi in centesimi interi, arrotondamento "half up").
+// Usato dalla pagina visuale e dal test (test_pagine.py confronta questo file con listino.py su 0-2000 lavoratori).
+function makeCalc(P) {
+  const roundDiv = (num, den) => Math.floor((2 * num + den) / (2 * den));
+
+  function fascia(n) {
+    if (!Number.isInteger(n) || n < 0 || n > P.maxLavoratori) throw new Error("lavoratori fuori range: " + n);
+    return P.fasce.findIndex((f) => n >= f.da && n <= f.a);
+  }
+
+  // quota per lavoratore del modulo A, a scaglioni, in centesimi
+  function varACents(n) {
+    let tot = 0, prec = 0;
+    for (const s of P.scaglioni) {
+      if (n > prec) tot += (Math.min(n, s.upTo) - prec) * s.cents;
+      prec = s.upTo;
+    }
+    return tot;
+  }
+
+  function modulo(codice, n) {
+    const m = P.moduli.find((x) => x.c === codice);
+    const f = P.fasce[fascia(n)];
+    let cents = m.canone * f.cc;
+    if (codice === "A") cents += varACents(n);
+    return { setup: roundDiv(m.setup * f.cs, 100), canone: roundDiv(cents, 100) };
+  }
+
+  function preventivo(n, codici) {
+    if (n <= P.pack.max && codici.length !== P.moduli.length) throw new Error("fino a " + P.pack.max + " lavoratori solo Pack Start");
+    const righe = {};
+    let setup = 0, canone = 0;
+    for (const c of codici) {
+      righe[c] = modulo(c, n);
+      setup += righe[c].setup;
+      canone += righe[c].canone;
+    }
+    const pack = n <= P.pack.max && codici.length === P.moduli.length;
+    return {
+      lavoratori: n, fascia: fascia(n), righe, pack,
+      setup: pack ? P.pack.setup : setup, canone: pack ? P.pack.canone : canone,
+      sommaSetup: setup, sommaCanone: canone,
+    };
+  }
+
+  return { fascia, modulo, preventivo, varACents, roundDiv };
+}
+if (typeof module !== "undefined") module.exports = makeCalc;
+
+const C = makeCalc(P);
+const fmt = (x) => String(Math.round(x)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+const eur = (x) => fmt(x) + " €";
+const cents = (c) => (c / 100).toFixed(2).replace(".", ",") + " €";
+const CODICI = P.moduli.map((m) => m.c);
+let n = 180;
+const sel = new Set(CODICI);
+const on = (c) => n <= P.pack.max || sel.has(c);
+
+const map = document.getElementById("map");
+const btns = {};
+for (const m of P.moduli) {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "mod"; b.dataset.c = m.c;
+  b.innerHTML = '<span class="top"><span class="badge">' + m.c + '</span><span class="nm">' + m.nome + '</span></span>' +
+    '<dl class="fees" style="margin:0"><dt>Setup</dt><dd data-s></dd><dt>Canone</dt><dd data-m></dd></dl><span class="sub" data-sub></span>';
+  b.addEventListener("click", () => { if (n <= P.pack.max) return; sel.has(m.c) ? sel.delete(m.c) : sel.add(m.c); render(); });
+  map.appendChild(b); btns[m.c] = b;
+}
+
+const chips = document.getElementById("chips");
+for (const f of P.fasce) {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "chip"; b.textContent = f.et; b.dataset.a = f.a;
+  b.addEventListener("click", () => { n = f.a; document.getElementById("n").value = n; render(); });
+  chips.appendChild(b);
+}
+
+const tbody = document.getElementById("fasce");
+const maxS = Math.max(...P.fasce.map((f) => C.preventivo(f.a, CODICI).setup));
+const maxC = Math.max(...P.fasce.map((f) => C.preventivo(f.a, CODICI).canone));
+P.fasce.forEach((f, i) => {
+  const p = C.preventivo(f.a, CODICI);
+  const tr = document.createElement("tr"); tr.className = "fascia"; tr.dataset.i = i; tr.tabIndex = 0;
+  tr.innerHTML = "<td>" + f.et + (p.pack ? ' <span class="tag">Pack Start</span>' : "") + "</td>" +
+    '<td>' + eur(p.setup) + '<div class="bar alt" style="width:' + (p.setup / maxS * 100).toFixed(1) + '%"></div></td>' +
+    '<td>' + eur(p.canone) + '<div class="bar" style="width:' + (p.canone / maxC * 100).toFixed(1) + '%"></div></td>' +
+    '<td class="r">' + (p.canone / Math.max(f.a, 1)).toFixed(1).replace(".", ",") + " €</td>";
+  const go = () => { n = f.a; document.getElementById("n").value = n; render(); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  tr.addEventListener("click", go);
+  tr.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+  tbody.appendChild(tr);
+});
+
+const steps = document.getElementById("steps");
+let prec = 0;
+for (const s of P.scaglioni) {
+  const d = document.createElement("div"); d.className = "step";
+  d.innerHTML = "<small>da " + fmt(prec + 1) + " a " + fmt(s.upTo) + " lavoratori</small><strong>" + cents(s.cents) + "</strong><small>al mese per lavoratore</small>";
+  steps.appendChild(d); prec = s.upTo;
+}
+
+function drawLines() {
+  const svg = document.getElementById("lines");
+  svg.innerHTML = "";
+  if (getComputedStyle(svg).display === "none") return;
+  const box = map.getBoundingClientRect();
+  const hub = map.querySelector(".hub").getBoundingClientRect();
+  const hx = hub.left - box.left + hub.width / 2, hy = hub.top - box.top + hub.height / 2;
+  for (const m of P.moduli) {
+    const r = btns[m.c].getBoundingClientRect();
+    const x = r.left - box.left + r.width / 2, y = r.top - box.top + r.height / 2;
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", hx); l.setAttribute("y1", hy); l.setAttribute("x2", x); l.setAttribute("y2", y);
+    l.setAttribute("stroke", on(m.c) ? "var(--accent)" : "var(--line)");
+    l.setAttribute("stroke-width", on(m.c) ? "2.5" : "1.5");
+    if (!on(m.c)) l.setAttribute("stroke-dasharray", "5 5");
+    svg.appendChild(l);
+  }
+}
+
+function render() {
+  const raw = Number(document.getElementById("n").value);
+  n = Number.isInteger(raw) && raw >= 0 && raw <= P.maxLavoratori ? raw : n;
+  const locked = n <= P.pack.max;
+  const codici = CODICI.filter(on);
+  const fi = C.fascia(n);
+  document.getElementById("fasciaNote").textContent = "Fascia " + P.fasce[fi].et + " lavoratori. Valido da 0 a " + fmt(P.maxLavoratori) + "." + (locked ? " Fino a " + P.pack.max + " lavoratori si vende solo il Pack Start, con tutti i moduli." : "");
+  chips.querySelectorAll(".chip").forEach((c, i) => c.setAttribute("aria-pressed", i === fi));
+  tbody.querySelectorAll("tr").forEach((tr, i) => tr.setAttribute("aria-current", i === fi));
+  for (const m of P.moduli) {
+    const r = C.modulo(m.c, n), b = btns[m.c];
+    b.setAttribute("aria-pressed", on(m.c));
+    b.setAttribute("aria-disabled", locked);
+    b.querySelector("[data-s]").textContent = locked ? "incluso nel Pack" : eur(r.setup);
+    b.querySelector("[data-m]").textContent = locked ? "incluso nel Pack" : eur(r.canone) + "/mese";
+    b.querySelector("[data-sub]").textContent = !locked && m.c === "A" ? "di cui " + eur(C.roundDiv(C.varACents(n), 100)) + " per " + fmt(n) + " lavoratori" : "";
+  }
+  const p = C.preventivo(n, codici);
+  const none = codici.length === 0;
+  document.getElementById("tSetup").textContent = none ? "-" : eur(p.setup);
+  document.getElementById("tCanone").textContent = none ? "-" : eur(p.canone);
+  document.getElementById("tAnno").textContent = none ? "-" : eur(p.setup + 12 * p.canone);
+  document.getElementById("tPer").textContent = none || n === 0 ? "-" : (p.canone / n).toFixed(2).replace(".", ",") + " €";
+  document.getElementById("tSetupN").textContent = none ? "Scegli almeno un modulo" : codici.length + " moduli su " + CODICI.length;
+  document.getElementById("tCanoneN").textContent = none ? "" : "IVA esclusa, server a parte";
+  const pk = document.getElementById("pack");
+  pk.hidden = !p.pack;
+  pk.textContent = "";
+  if (p.pack) pk.textContent = "Pack Start: tutti i moduli a prezzo fisso, " + eur(p.setup) + " una tantum + " + eur(p.canone) + " al mese. Fino a " + P.pack.max + " lavoratori non si vendono moduli singoli.";
+  drawLines();
+}
+
+document.getElementById("n").addEventListener("input", render);
+window.addEventListener("resize", drawLines);
+if (window.ResizeObserver) new ResizeObserver(drawLines).observe(map);
+render();
+</script>
+</body>
+</html>
