@@ -55,6 +55,16 @@ h1 span { color: var(--accent); }
 .cta h2 { font-family: var(--display); font-size: clamp(22px, 5vw, 28px); margin: 0; line-height: 1.1; }
 .btn { display: inline-block; text-align: center; background: var(--accent); color: var(--accent-ink); font-weight: 700; text-decoration: none; padding: 14px 18px; border-radius: 12px; font-size: 16px; }
 .btn.ghost { background: transparent; color: var(--fg); border: 2px solid var(--accent); }
+.partners { background: var(--accent); color: var(--accent-ink); border-radius: 18px; padding: 22px 20px; display:flex; flex-direction:column; gap:12px; }
+.partners .ey { color: var(--accent-ink); }
+.partners h2 { font-family: var(--display); font-size: clamp(28px, 7vw, 42px); line-height: 1.02; margin: 0; }
+.partners h2 span { color: var(--fg); }
+.partners .lead { color: var(--accent-ink); }
+.pgrid { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:10px; }
+.pgrid div { background: rgba(15,27,39,.12); border-radius: 12px; padding: 12px; min-width:0; }
+.pgrid b { display:block; font-family: var(--display); font-size: 17px; margin-bottom: 4px; }
+.pgrid span { font-size: 14px; line-height: 1.35; }
+@media (max-width: 620px) { .pgrid { grid-template-columns: 1fr; } }
 .mail { font-size: 15px; color: var(--muted); user-select: all; }
 @media (prefers-reduced-motion: reduce) { .mod, .hubbox line { transition: none; } }
 </style>
@@ -65,7 +75,7 @@ h1 span { color: var(--accent); }
     <p class="ey">OMO Agency · Construction tech</p>
     <h1>Todos los datos de la constructora, <span>en un solo HUB.</span></h1>
     <p class="lead">Plataformas SaaS y agentes de IA para empresas de construcción y rehabilitación de edificios. Ya en producción en España e Italia.</p>
-    <div class="who"><span class="pill on">Eleonora Saccucci, fundadora a tiempo completo</span><span class="pill">España · Italia</span><span class="pill">Startup Booster · Startup Geeks</span></div>
+    <div class="who"><span class="pill on">Eleonora Saccucci, fundadora a tiempo completo</span><span class="pill on">Buscamos partners</span><span class="pill">España · Italia</span><span class="pill">Startup Booster · Startup Geeks</span></div>
   </header>
 
   <section class="nums" aria-label="Resultados">
@@ -85,8 +95,19 @@ h1 span { color: var(--accent); }
 
   <article class="card" id="card" aria-live="polite"></article>
 
+  <section class="partners" aria-label="Buscamos partners">
+    <p class="ey">Lo que busco</p>
+    <h2>Busco <span>partners</span> para crecer.</h2>
+    <p class="lead">El producto funciona y está en producción. Ahora quiero crecer con quien ya está en el sector.</p>
+    <div class="pgrid">
+      <div><b>Partners comerciales</b><span>Empresas y profesionales que ya venden a constructoras y pueden ofrecer el HUB.</span></div>
+      <div><b>Partners del sector</b><span>Asociaciones, ingenierías, prevención y CAE que quieran integrar el HUB en sus servicios.</span></div>
+      <div><b>Partners que abren puertas</b><span>Inversores y socios que aportan red, clientes y alianzas en construcción y real estate.</span></div>
+    </div>
+  </section>
+
   <section class="cta">
-    <h2>¿Te interesa para construcción y real estate?</h2>
+    <h2>¿Hablamos de ser partners?</h2>
     <a class="btn" href="omo-video.mp4" target="_blank" rel="noopener">Ver el vídeo (45 s)</a>
     <a class="btn ghost" href="OMO_Agency_one_pager.pdf" target="_blank" rel="noopener">Todo en una página (PDF)</a>
     <p class="mail">Eleonora Saccucci · info@omosupport.com</p>
