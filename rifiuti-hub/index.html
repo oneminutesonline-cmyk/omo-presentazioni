@@ -1,0 +1,1091 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Rifiuti Hub Trasporti</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: barra superiore con la «targa ADR» arancione, schede in alto, contenuto in colonna unica larga max 1080px */
+:root{
+  --bg:#f3f5f6; --surface:#ffffff; --ink:#18232b; --muted:#5b6b75; --line:#d9e0e4;
+  --adr:#e8770e; --adr-ink:#1b1b1b; --accent:#1f5f7a;
+  --ok:#2f7d4f; --ok-bg:#e3f2e9; --warn:#9a6400; --warn-bg:#fdf1d8; --bad:#b3261e; --bad-bg:#fbe4e2;
+  --f-display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11181d; --surface:#18222a; --ink:#e4ebef; --muted:#93a4ae; --line:#2b3943;
+  --adr:#f08a2a; --adr-ink:#151515; --accent:#6fb3d2;
+  --ok:#7fd3a0; --ok-bg:#16301f; --warn:#f0c46a; --warn-bg:#352a12; --bad:#ff9a92; --bad-bg:#3a1a18; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11181d; --surface:#18222a; --ink:#e4ebef; --muted:#93a4ae; --line:#2b3943;
+  --adr:#f08a2a; --adr-ink:#151515; --accent:#6fb3d2;
+  --ok:#7fd3a0; --ok-bg:#16301f; --warn:#f0c46a; --warn-bg:#352a12; --bad:#ff9a92; --bad-bg:#3a1a18; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+header{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center;justify-content:space-between}
+.brand{display:flex;gap:14px;align-items:center}
+.adr{display:grid;grid-template-rows:1fr 1fr;border:3px solid var(--adr-ink);background:var(--adr);color:var(--adr-ink);font-family:var(--f-mono);font-weight:500;font-size:13px;text-align:center;width:64px;border-radius:3px}
+.adr span{padding:1px 4px}.adr span+span{border-top:3px solid var(--adr-ink)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(28px,5vw,40px);line-height:1;margin:0;letter-spacing:.01em;text-wrap:balance}
+.sub{color:var(--muted);margin:2px 0 0;font-size:14px}
+.demo{font-size:12px;letter-spacing:.06em;text-transform:uppercase;background:var(--warn-bg);color:var(--warn);padding:4px 10px;border-radius:999px;font-weight:600}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin:22px 0 18px;border-bottom:1px solid var(--line)}
+nav button{font:inherit;font-weight:600;font-size:14px;color:var(--muted);background:none;border:0;border-bottom:3px solid transparent;padding:8px 10px;cursor:pointer}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--adr)}
+nav button:focus-visible,.btn:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.kpi b{display:block;font-family:var(--f-display);font-size:30px;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi small{color:var(--muted);font-size:13px}
+h2{font-family:var(--f-display);font-weight:600;font-size:24px;margin:8px 0 4px}
+.lead{color:var(--muted);margin:0 0 14px;max-width:68ch}
+.list{display:grid;gap:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--line);border-radius:8px;padding:12px 14px;display:grid;gap:6px;min-width:0}
+.card.ok{border-left-color:var(--ok)}.card.attenzione{border-left-color:var(--warn)}.card.bloccato{border-left-color:var(--bad)}
+.row{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}
+.cer{font-family:var(--f-mono);font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:1px 6px;white-space:nowrap}
+.cer.haz{border-color:var(--adr);color:var(--adr)}
+.pill{font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;text-transform:uppercase;letter-spacing:.05em}
+.pill.ok,.pill.valida{background:var(--ok-bg);color:var(--ok)}.pill.attenzione,.pill.in_scadenza{background:var(--warn-bg);color:var(--warn)}.pill.bloccato,.pill.scaduta,.pill.mancante{background:var(--bad-bg);color:var(--bad)}
+.muted{color:var(--muted);font-size:13px}
+ul.prob{margin:0;padding-left:18px;font-size:14px}
+li.blocco{color:var(--bad)}li.avviso{color:var(--warn)}
+.tablebox{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+td.n,th.n{text-align:right}
+tfoot td{font-weight:600;border-bottom:0}
+.bad{color:var(--bad);font-weight:600}.good{color:var(--ok)}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+select{font:inherit;padding:6px 10px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.bar{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;min-width:80px}.bar i{display:block;height:100%;background:var(--accent)}
+.next{margin-top:28px;background:var(--surface);border:1px dashed var(--line);border-radius:8px;padding:14px 16px}
+.next h3{font-family:var(--f-display);font-size:20px;margin:0 0 6px}
+.next ul{margin:0;padding-left:18px}
+footer{margin-top:24px;color:var(--muted);font-size:12px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.search input{width:100%;font:inherit;font-size:17px;padding:12px 14px;border-radius:8px;border:2px solid var(--line);background:var(--surface);color:var(--ink)}
+.search input:focus-visible,textarea:focus-visible{outline:none;border-color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 14px}
+.chips button{font:inherit;font-size:13px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.chips button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.desc{font-size:15px}
+.path{color:var(--muted);font-size:12px}
+textarea{width:100%;font-family:var(--f-mono);font-size:13px;padding:10px 12px;border-radius:8px;border:2px solid var(--line);background:var(--surface);color:var(--ink);resize:vertical}
+.btn{font:inherit;font-weight:600;padding:8px 16px;border-radius:6px;border:0;background:var(--accent);color:var(--surface);cursor:pointer}
+.form{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:14px 0}
+.form h3,.sotto{font-family:var(--f-display);font-size:19px;margin:0 0 10px}
+.sotto{margin-top:6px}
+.campi{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px 12px}
+.campi .largo{grid-column:1/-1}
+.campi label{display:block;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.campi input{width:100%;font:inherit;padding:8px 10px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.campi input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.chips button.scelto{border-color:var(--accent);color:var(--accent);font-weight:600}
+.cliente{margin-top:14px}
+.cliente h3{font-family:var(--f-display);font-size:19px;margin:0 0 6px}
+@media (prefers-reduced-motion: no-preference){.card{transition:transform .15s}.card:hover{transform:translateY(-1px)}}
+/* In giro col telefono: barra delle sezioni in basso sotto il pollice, campi grandi, tabelle che diventano schede */
+.wa{display:inline-flex;align-items:center;gap:6px;font-weight:600;padding:8px 16px;border-radius:6px;background:var(--ok);color:var(--surface);text-decoration:none}
+.wa:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width: 640px){
+  body{font-size:16px}
+  .wrap{padding-block:14px calc(84px + env(safe-area-inset-bottom, 0px))}
+  nav{position:fixed;left:0;right:0;bottom:0;z-index:20;margin:0;border:0;border-top:1px solid var(--line);background:var(--surface);
+      flex-wrap:nowrap;overflow-x:auto;gap:0;padding:4px max(8px,env(safe-area-inset-right,0px)) calc(4px + env(safe-area-inset-bottom, 0px)) max(8px,env(safe-area-inset-left,0px));scrollbar-width:none}
+  nav button{flex:0 0 auto;min-height:52px;padding:6px 12px;font-size:14px;border-bottom:0;border-top:3px solid transparent}
+  nav button[aria-selected="true"]{border-top-color:var(--adr)}
+  .btn,.wa,.chips button,select{min-height:44px}
+  .campi input,select,.search input,textarea{font-size:16px}
+  .campi input{min-height:44px}
+  .toolbar .btn,.toolbar .wa{flex:1 1 auto;justify-content:center;text-align:center}
+  h1{font-size:28px}
+  .demo{font-size:11px}
+  .kpis{grid-template-columns:1fr 1fr}
+  .tablebox{background:none;border:0;overflow:visible}
+  .tablebox table,.tablebox tbody,.tablebox tfoot,.tablebox tr,.tablebox td{display:block;width:100%}
+  .tablebox thead{display:none}
+  .tablebox tr{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin-bottom:8px}
+  .tablebox td{border:0;padding:5px 0;white-space:normal !important;min-width:0 !important;display:flex;gap:12px;justify-content:space-between;align-items:baseline;text-align:right}
+  .tablebox td::before{content:attr(data-label);color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em;text-align:left;flex:0 0 auto}
+  .tablebox td[data-label=""]::before{content:none}
+  .tablebox td:empty{display:none}
+  /* barra del preventivo sopra il menu: il totale e l'invio restano sempre sotto il pollice */
+  .barra-prev{position:fixed;left:0;right:0;bottom:calc(61px + env(safe-area-inset-bottom, 0px));z-index:19;display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:8px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px));background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -4px 12px rgba(0,0,0,.06)}
+  .barra-prev small{display:block;color:var(--muted);font-size:12px}
+  .barra-prev b{font-family:var(--f-display);font-size:24px;font-variant-numeric:tabular-nums}
+  .barra-prev .wa{flex:0 0 auto}
+  #v-prev{padding-bottom:72px}
+}
+@media (min-width: 641px){ .barra-prev{display:none !important} }
+.campi select{width:100%}
+details.offerta{margin-top:8px;border-top:1px dashed var(--line);padding-top:8px}
+details.offerta summary{cursor:pointer;font-weight:600;color:var(--accent);min-height:32px;display:flex;align-items:center}
+details.offerta .campi{margin-top:8px}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="adr" aria-hidden="true"><span>33</span><span>1203</span></div>
+      <div>
+        <h1>Rifiuti Hub · Trasporti</h1>
+        <p class="sub">Ritiri, FIR, pesi, fatture e scadenze in un posto solo</p>
+      </div>
+    </div>
+    <span class="demo">Demo · dati di fantasia · oggi <span id="oggi"></span></span>
+  </header>
+
+  <nav role="tablist" aria-label="Sezioni">
+    <button role="tab" id="t-clienti" aria-selected="true" data-v="clienti">Lista clienti</button>
+    <button role="tab" id="t-prev" aria-selected="false" data-v="prev">Preventivo</button>
+    <button role="tab" id="t-codici" aria-selected="false" data-v="codici">Codici CER</button>
+    <button role="tab" id="t-oggi" aria-selected="false" data-v="oggi">Ritiri di oggi</button>
+    <button role="tab" id="t-fir" aria-selected="false" data-v="fir">FIR e pesi</button>
+    <button role="tab" id="t-fatture" aria-selected="false" data-v="fatture">Fatture</button>
+    <button role="tab" id="t-scadenze" aria-selected="false" data-v="scadenze">Scadenze</button>
+    <button role="tab" id="t-cer" aria-selected="false" data-v="cer">Riepilogo CER</button>
+  </nav>
+
+  <section id="v-prev" hidden>
+    <h2>Preventivo veloce</h2>
+    <p class="lead">Scrivi il cliente, i rifiuti e le tonnellate stimate. Se hai già l'offerta dell'impianto, inserisci il suo prezzo (anche in €/kg): il sistema aggiunge trasporto e ricarico e ti dà il prezzo al cliente in €/t. Senza offerta sceglie lui l'impianto autorizzato più conveniente dal listino. Poi prepara il testo da mandare.</p>
+    <div class="form">
+      <div class="campi">
+        <div class="largo"><label for="p-cliente">Cliente</label><input id="p-cliente" list="p-elenco" placeholder="scrivi o scegli dalla lista clienti" value="Edil Adriatica (demo)"><datalist id="p-elenco"></datalist></div>
+        <div><label for="p-km">Km dal cliente all'impianto</label><input id="p-km" inputmode="decimal" value="25"></div>
+        <div><label for="p-eurokm">Costo mezzo €/km</label><input id="p-eurokm" inputmode="decimal" value="1,5"></div>
+        <div><label for="p-ricarico">Ricarico %</label><input id="p-ricarico" inputmode="decimal" value="25"></div>
+      </div>
+      <div class="toolbar" style="margin-top:10px"><button class="btn" type="button" id="p-dalista">Prendi i rifiuti del cliente dalla lista</button></div>
+      <div id="p-righe" class="list" style="margin-top:6px"></div>
+      <div class="toolbar" style="margin-top:8px"><button class="btn" type="button" id="p-aggiungi">+ Aggiungi un rifiuto</button></div>
+    </div>
+    <div id="p-risultato"></div>
+    <h3 class="sotto" style="margin-top:16px">Testo da mandare al cliente</h3>
+    <label for="p-testo" class="sr">Testo del preventivo</label>
+    <textarea id="p-testo" rows="9" readonly></textarea>
+    <div class="toolbar" style="margin-top:8px"><a class="wa" id="p-wa" href="https://wa.me/" target="_blank" rel="noopener">Manda su WhatsApp</a><button class="btn" type="button" id="p-copia">Copia il testo</button><span class="muted" id="p-copiato"></span></div>
+    <div class="barra-prev" id="p-barra" hidden>
+      <div><small>Totale con IVA</small><b id="p-barra-tot">–</b></div>
+      <a class="wa" id="p-barra-wa" href="https://wa.me/" target="_blank" rel="noopener">WhatsApp</a>
+    </div>
+    <p class="muted">Dal telefono puoi dettare in ogni campo con il microfono della tastiera. WhatsApp si apre con il testo già scritto: scegli tu il contatto e premi invio.</p>
+    <p class="muted">Costo mezzo, ricarico e tariffe degli impianti sono valori di prova: nella versione vera sono i vostri listini.</p>
+  </section>
+  <section id="v-codici" hidden>
+    <h2>Trova il codice giusto</h2>
+    <p class="lead">Tutto l'elenco europeo dei rifiuti: <strong id="nVoci"></strong> codici, di cui <strong id="nPer"></strong> pericolosi. Scrivi come lo chiamano in cantiere o in officina, oppure le prime cifre del codice.</p>
+    <div class="search">
+      <label for="q" class="sr">Cerca un rifiuto o un codice</label>
+      <input id="q" type="search" autocomplete="off" placeholder="es. calcinacci, cartongesso, olio motore, 1709" value="calcinacci">
+    </div>
+    <div class="chips" id="esempi"></div>
+    <div class="list" id="risultati"></div>
+    <p class="muted">Nella demo la proposta nasce da parole chiave e sinonimi di cantiere. Nella versione completa la propone un'IA partendo dalla descrizione o da una foto del rifiuto. Il codice lo conferma sempre il produttore: la classificazione è sua responsabilità.</p>
+
+  </section>
+  <section id="v-clienti">
+    <h2>Carica la lista clienti</h2>
+    <p class="lead">Carica l'Excel che hai già, così com'è, oppure scrivi un cliente. Ogni codice viene controllato sull'elenco ufficiale; dove manca, lo proponiamo dalla descrizione del rifiuto.</p>
+    <div class="toolbar">
+      <label class="btn" for="file">Carica file Excel o CSV</label>
+      <input id="file" type="file" accept=".xlsx,.xls,.csv,.tsv,.txt" class="sr">
+      <span class="muted" id="fileNome">oppure copia le righe da Excel e incollale qui sotto</span>
+    </div>
+    <form id="nuovo" class="form" autocomplete="off">
+      <h3>Oppure scrivi un cliente</h3>
+      <div class="campi">
+        <div><label for="f-cliente">Cliente *</label><input id="f-cliente" required placeholder="Ragione sociale"></div>
+        <div><label for="f-piva">Partita IVA</label><input id="f-piva" inputmode="numeric" placeholder="11 cifre"><small id="f-piva-ok" class="muted"></small></div>
+        <div><label for="f-comune">Comune / cantiere</label><input id="f-comune"></div>
+        <div class="largo"><label for="f-rifiuto">Che rifiuto è?</label><input id="f-rifiuto" placeholder="es. calcinacci, cartongesso, olio motore"></div>
+        <div><label for="f-cer">Codice CER</label><input id="f-cer" placeholder="lo propongo io"></div>
+        <div><label for="f-impianto">Impianto</label><input id="f-impianto"></div>
+        <div><label for="f-prezzo">Prezzo €/t</label><input id="f-prezzo" inputmode="decimal"></div>
+      </div>
+      <div class="chips" id="f-proposte" aria-live="polite"></div>
+      <div class="toolbar"><button class="btn" type="submit">Aggiungi alla lista</button><span class="muted" id="f-esito"></span></div>
+    </form>
+    <h3 class="sotto">Lista attuale</h3>
+    <label for="csv" class="sr">Lista clienti</label>
+    <textarea id="csv" rows="8" spellcheck="false">Cliente	P.IVA	Comune	CER	Rifiuto	Impianto	€/t
+Edil Adriatica (demo)	12345678903	Pescara	17 09 04	misti da cantiere	Recupero Inerti	45
+Edil Adriatica (demo)	12345678903	Pescara		calcinacci	Recupero Inerti	22
+Edil Adriatica (demo)			17 06 05*	tettoia in eternit		
+Officina Gran Sasso (demo)	12345678900	Chieti	13 02 05*	olio motore esausto		
+Officina Gran Sasso (demo)			15 01 10	latte di vernice vuote		850
+Officina Gran Sasso (demo)				pneumatici		220
+Scavi Maiella (demo)		Spoltore	17 05 99	terra da scavo		15
+Supermercati Costa Verde (demo)		Montesilvano		cartone		35,50</textarea>
+    <div class="toolbar" style="margin-top:8px"><button class="btn" id="controlla" type="button">Controlla la lista</button></div>
+    <div id="riepilogo"></div>
+    <div id="profili"></div>
+  </section>
+  <section id="v-oggi" hidden></section>
+  <section id="v-fir" hidden></section>
+  <section id="v-fatture" hidden></section>
+  <section id="v-scadenze" hidden></section>
+  <section id="v-cer" hidden></section>
+
+  <div class="next">
+    <h3>Nella versione completa</h3>
+    <ul>
+      <li>Collegamento al RENTRI: FIR digitale e registro di carico e scarico inviati dal gestionale (servizi di interoperabilità del RENTRI, provati prima nell'ambiente demo).</li>
+      <li>App per l'autista: lista dei ritiri, foto del carico e del ticket di pesata, firma del FIR dal telefono.</li>
+      <li>Foto di un FIR cartaceo o di un ticket di pesata: i dati si compilano da soli e la persona li conferma.</li>
+      <li>Assistente IA sui codici: dalla foto o dalla descrizione del rifiuto propone i codici possibili, con le voci a specchio e il motivo di ogni proposta.</li>
+      <li>App sul telefono con l'icona in home: funziona anche dove non c'è campo e si allinea appena torna la rete.</li>
+      <li>Preventivo a voce: «8 tonnellate di plastiche auto per Edil Rossi, impianto a 35 centesimi al chilo, trasporto loro» e il preventivo si compila da solo.</li>
+      <li>Foto dell'offerta dell'impianto: il prezzo e le condizioni si leggono da soli.</li>
+      <li>Fattura mensile pronta da esportare verso il programma di fatturazione elettronica già in uso.</li>
+    </ul>
+  </div>
+  <footer>Prototipo OMO Agency · 20/11/2026 · nomi, targhe, FIR, pesi e prezzi sono inventati per la dimostrazione.</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+// Logica del prototipo «Rifiuti Hub · Trasporti» (trasportatore di rifiuti) — OMO Agency, 20/11/2026.
+// Funzioni pure, senza dipendenze: le usa la pagina demo e le prova test_logica.mjs (node --test).
+// Le soglie (giorni di preavviso, tolleranza pesi, IVA) sono PARAMETRI da confermare con il cliente.
+
+const PARAMETRI = {
+  giorniPreavvisoScadenza: 30, // da verificare con il cliente
+  tolleranzaPesoPct: 5,        // scostamento peso partenza/destino oltre il quale si segnala (da verificare)
+  aliquotaIva: 22,             // IVA ordinaria Italia
+};
+
+// Codice EER/CER: 6 cifre, eventuale asterisco finale = pericoloso. Accetta "17 09 04", "170904", "15 01 10*".
+function normalizzaCER(input) {
+  if (typeof input !== "string") return null;
+  const pericoloso = /\*\s*$/.test(input);
+  const cifre = input.replace(/[\s.*]/g, "");
+  if (!/^\d{6}$/.test(cifre)) return null;
+  const capitolo = Number(cifre.slice(0, 2));
+  if (capitolo < 1 || capitolo > 20) return null;
+  return { codice: cifre, pericoloso, etichetta: `${cifre.slice(0, 2)} ${cifre.slice(2, 4)} ${cifre.slice(4, 6)}${pericoloso ? "*" : ""}` };
+}
+
+// Differenza in giorni interi tra due date ISO (AAAA-MM-GG), b - a.
+function giorniTra(a, b) {
+  const ms = Date.parse(b + "T00:00:00Z") - Date.parse(a + "T00:00:00Z");
+  return Math.round(ms / 86400000);
+}
+
+function statoScadenza(scadenza, oggi, preavviso = PARAMETRI.giorniPreavvisoScadenza) {
+  if (!scadenza) return { stato: "mancante", giorni: null };
+  const g = giorniTra(oggi, scadenza);
+  if (g < 0) return { stato: "scaduta", giorni: g };
+  if (g <= preavviso) return { stato: "in_scadenza", giorni: g };
+  return { stato: "valida", giorni: g };
+}
+
+// Controllo di conformità di un ritiro PRIMA di partire.
+// Restituisce { esito: "ok" | "attenzione" | "bloccato", problemi: [{livello, codice, testo}] }
+function controllaRitiro(ritiro, { mezzi, impianti, clienti, azienda, elenco }, oggi) {
+  const problemi = [];
+  const add = (livello, codice, testo) => problemi.push({ livello, codice, testo });
+  const cer = normalizzaCER(ritiro.cer);
+  if (!cer) add("blocco", "CER_NON_VALIDO", `Codice CER non valido: ${ritiro.cer}`);
+  // con l'elenco ufficiale caricato (catalogo.mjs) si controlla anche che il codice esista e che l'asterisco sia giusto
+  const ufficiale = cer && elenco ? elenco.find((v) => v.codice === cer.codice) : null;
+  if (cer && elenco && !ufficiale) add("blocco", "CER_NON_IN_ELENCO", `Il codice ${cer.etichetta} non esiste nell'elenco europeo dei rifiuti`);
+  if (ufficiale && ufficiale.pericoloso !== cer.pericoloso) add("blocco", "ASTERISCO_ERRATO", `Il codice ${ufficiale.etichetta} è ${ufficiale.pericoloso ? "pericoloso: manca l'asterisco" : "non pericoloso: l'asterisco è di troppo"}`);
+  const mezzo = mezzi.find((m) => m.targa === ritiro.targa);
+  const impianto = impianti.find((i) => i.id === ritiro.impianto);
+  const cliente = clienti.find((c) => c.id === ritiro.cliente);
+  if (!cliente) add("blocco", "CLIENTE_SCONOSCIUTO", `Cliente non in anagrafica: ${ritiro.cliente}`);
+  if (!mezzo) add("blocco", "MEZZO_SCONOSCIUTO", `Mezzo non in anagrafica: ${ritiro.targa}`);
+  if (!impianto) add("blocco", "IMPIANTO_SCONOSCIUTO", `Impianto non in anagrafica: ${ritiro.impianto}`);
+
+  const sAlbo = statoScadenza(azienda.alboScadenza, oggi);
+  if (sAlbo.stato === "scaduta" || sAlbo.stato === "mancante") add("blocco", "ALBO_SCADUTO", "Iscrizione Albo Gestori Ambientali scaduta o mancante");
+  else if (sAlbo.stato === "in_scadenza") add("avviso", "ALBO_IN_SCADENZA", `Iscrizione Albo in scadenza tra ${sAlbo.giorni} giorni`);
+
+  if (cer && mezzo) {
+    if (!mezzo.cerAutorizzati.includes(cer.codice)) add("blocco", "CER_NON_SUL_MEZZO", `Il mezzo ${mezzo.targa} non è autorizzato al CER ${cer.etichetta}`);
+    if (cer.pericoloso && !mezzo.pericolosi) add("blocco", "MEZZO_NON_PERICOLOSI", `Il mezzo ${mezzo.targa} non è abilitato ai rifiuti pericolosi`);
+  }
+  if (mezzo) {
+    const s = statoScadenza(mezzo.revisioneScadenza, oggi);
+    if (s.stato === "scaduta" || s.stato === "mancante") add("blocco", "REVISIONE_SCADUTA", `Revisione del mezzo ${mezzo.targa} scaduta`);
+    else if (s.stato === "in_scadenza") add("avviso", "REVISIONE_IN_SCADENZA", `Revisione ${mezzo.targa} tra ${s.giorni} giorni`);
+    if (typeof ritiro.kgStimati === "number" && ritiro.kgStimati > mezzo.portataKg) add("blocco", "OLTRE_PORTATA", `Peso stimato ${ritiro.kgStimati} kg oltre la portata di ${mezzo.portataKg} kg`);
+  }
+  if (cer && impianto) {
+    if (!impianto.cerAccettati.includes(cer.codice)) add("blocco", "CER_NON_IN_IMPIANTO", `L'impianto ${impianto.nome} non è autorizzato a ricevere il CER ${cer.etichetta}`);
+    const s = statoScadenza(impianto.autorizzazioneScadenza, oggi);
+    if (s.stato === "scaduta" || s.stato === "mancante") add("blocco", "IMPIANTO_SCADUTO", `Autorizzazione dell'impianto ${impianto.nome} scaduta`);
+    else if (s.stato === "in_scadenza") add("avviso", "IMPIANTO_IN_SCADENZA", `Autorizzazione ${impianto.nome} in scadenza tra ${s.giorni} giorni`);
+  }
+  if (cer && cliente && !cliente.cer.includes(cer.codice)) add("avviso", "CER_NUOVO_PER_CLIENTE", `CER ${cer.etichetta} mai ritirato da questo cliente: chiedere la classificazione (analisi o scheda)`);
+
+  const esito = problemi.some((p) => p.livello === "blocco") ? "bloccato" : problemi.length ? "attenzione" : "ok";
+  return { esito, problemi };
+}
+
+// Confronto peso a partenza (stimato/verificato in partenza) e peso verificato a destino.
+function scostamentoPeso(kgPartenza, kgDestino, tolleranzaPct = PARAMETRI.tolleranzaPesoPct) {
+  if (!(kgPartenza > 0) || !(kgDestino >= 0)) return { diffKg: null, diffPct: null, fuoriTolleranza: null };
+  const diffKg = kgDestino - kgPartenza;
+  const diffPct = Math.round((diffKg / kgPartenza) * 1000) / 10;
+  return { diffKg, diffPct, fuoriTolleranza: Math.abs(diffPct) > tolleranzaPct };
+}
+
+const cent = (x) => Math.round(x * 100) / 100;
+
+// Prezzo di un viaggio dal listino del cliente. Il peso fatturato è SEMPRE quello verificato a destino.
+// Voci di listino: { cliente, cer, euroTonnellata, euroViaggio, minimoTonnellate }
+function prezzoViaggio(viaggio, listino) {
+  const cer = normalizzaCER(viaggio.cer);
+  const voce = cer && listino.find((v) => v.cliente === viaggio.cliente && v.cer === cer.codice);
+  if (!voce) return { ok: false, motivo: "Nessun prezzo in listino per questo cliente e CER" };
+  if (!(viaggio.kgDestino >= 0)) return { ok: false, motivo: "Manca il peso verificato a destino" };
+  const t = viaggio.kgDestino / 1000;
+  const tFatturate = Math.max(t, voce.minimoTonnellate || 0);
+  const smaltimento = cent(tFatturate * (voce.euroTonnellata || 0));
+  const trasporto = cent(voce.euroViaggio || 0);
+  return { ok: true, tonnellate: cent(tFatturate), smaltimento, trasporto, imponibile: cent(smaltimento + trasporto) };
+}
+
+// Fattura mensile di un cliente: un rigo per viaggio concluso (peso a destino presente) nel mese AAAA-MM.
+function fatturaMensile(clienteId, mese, viaggi, listino, aliquota = PARAMETRI.aliquotaIva) {
+  const righe = [];
+  const scartati = [];
+  for (const v of viaggi) {
+    if (v.cliente !== clienteId || !v.data.startsWith(mese)) continue;
+    const p = prezzoViaggio(v, listino);
+    if (p.ok) righe.push({ fir: v.fir, data: v.data, cer: normalizzaCER(v.cer).etichetta, ...p });
+    else scartati.push({ fir: v.fir, motivo: p.motivo });
+  }
+  righe.sort((a, b) => (a.data < b.data ? -1 : a.data > b.data ? 1 : a.fir < b.fir ? -1 : 1));
+  const imponibile = cent(righe.reduce((s, r) => s + r.imponibile, 0));
+  const iva = Math.round((Math.round(imponibile * 100) * aliquota) / 100) / 100; // in centesimi interi
+  return { cliente: clienteId, mese, righe, scartati, imponibile, iva, totale: cent(imponibile + iva) };
+}
+
+// Margine di un viaggio: ricavo dal cliente meno costo dell'impianto (€/t) e costo del viaggio.
+function margineViaggio(viaggio, listino, impianti, costoKm) {
+  const p = prezzoViaggio(viaggio, listino);
+  if (!p.ok) return null;
+  const imp = impianti.find((i) => i.id === viaggio.impianto);
+  const costoImpianto = cent((viaggio.kgDestino / 1000) * ((imp && imp.tariffe[normalizzaCER(viaggio.cer).codice]) || 0));
+  const costoMezzo = cent((viaggio.km || 0) * costoKm);
+  const margine = cent(p.imponibile - costoImpianto - costoMezzo);
+  return { ricavo: p.imponibile, costoImpianto, costoMezzo, margine };
+}
+
+// Riepilogo annuale per CER (base per i controlli del MUD): kg verificati a destino, numero di viaggi.
+function riepilogoAnnuale(anno, viaggi) {
+  const per = {};
+  for (const v of viaggi) {
+    if (!v.data.startsWith(String(anno)) || !(v.kgDestino >= 0)) continue;
+    const c = normalizzaCER(v.cer);
+    if (!c) continue;
+    per[c.etichetta] ??= { cer: c.etichetta, pericoloso: c.pericoloso, kg: 0, viaggi: 0 };
+    per[c.etichetta].kg += v.kgDestino;
+    per[c.etichetta].viaggi += 1;
+  }
+  return Object.values(per).sort((a, b) => b.kg - a.kg || (a.cer < b.cer ? -1 : 1));
+}
+
+// FIR ancora aperti: partiti ma senza peso a destino (o senza riconsegna/accettazione) dopo N giorni.
+function firAperti(viaggi, oggi, giorniMax = 3) {
+  return viaggi
+    .filter((v) => !(v.kgDestino >= 0) && giorniTra(v.data, oggi) > giorniMax)
+    .map((v) => ({ fir: v.fir, cliente: v.cliente, giorni: giorniTra(v.data, oggi) }))
+    .sort((a, b) => b.giorni - a.giorni);
+}
+
+// Scadenzario unico: Albo, mezzi, impianti. Ordinato dal più urgente.
+function scadenzario({ azienda, mezzi, impianti }, oggi) {
+  const voci = [{ cosa: "Iscrizione Albo Gestori Ambientali", data: azienda.alboScadenza }];
+  for (const m of mezzi) voci.push({ cosa: `Revisione ${m.targa}`, data: m.revisioneScadenza });
+  for (const i of impianti) voci.push({ cosa: `Autorizzazione impianto ${i.nome}`, data: i.autorizzazioneScadenza });
+  return voci
+    .map((v) => ({ ...v, ...statoScadenza(v.data, oggi) }))
+    .sort((a, b) => (a.giorni ?? -1e9) - (b.giorni ?? -1e9));
+}
+
+// DATI DI FANTASIA per la demo (nessun dato reale del potenziale cliente o dei suoi clienti).
+// Codici EER e descrizioni: elenco europeo dei rifiuti (Decisione 2000/532/CE e s.m.i.).
+const OGGI = "2026-11-20";
+
+// Testo identico all'elenco ufficiale (verificato da test_catalogo.mjs).
+const DESCRIZIONI_CER = {
+  "170904": "rifiuti misti dell'attività di costruzione e demolizione, diversi da quelli di cui alle voci 17 09 01, 17 09 02 e 17 09 03",
+  "170107": "miscugli di cemento, mattoni, mattonelle e ceramiche, diversi da quelli di cui alla voce 17 01 06",
+  "170405": "ferro e acciaio",
+  "170504": "terra e rocce, diverse da quelle di cui alla voce 17 05 03",
+  "150101": "imballaggi di carta e cartone",
+  "150106": "imballaggi in materiali misti",
+  "150110": "imballaggi contenenti residui di sostanze pericolose o contaminati da tali sostanze",
+  "160103": "pneumatici fuori uso",
+};
+
+const AZIENDA = { nome: "Trasporti Demo Srl", alboScadenza: "2027-03-31" };
+
+const CLIENTI = [
+  { id: "C01", nome: "Edil Adriatica (demo)", comune: "Pescara", cer: ["170904", "170107", "170405"] },
+  { id: "C02", nome: "Officina Meccanica Gran Sasso (demo)", comune: "Chieti", cer: ["150110", "160103", "150106"] },
+  { id: "C03", nome: "Supermercati Costa Verde (demo)", comune: "Montesilvano", cer: ["150101", "150106"] },
+  { id: "C04", nome: "Scavi Maiella (demo)", comune: "Spoltore", cer: ["170504", "170904"] },
+];
+
+const MEZZI = [
+  { targa: "AB123CD", tipo: "Scarrabile 3 assi", portataKg: 14000, pericolosi: false, revisioneScadenza: "2027-05-10",
+    cerAutorizzati: ["170904", "170107", "170405", "170504", "150101", "150106"] },
+  { targa: "EF456GH", tipo: "Furgone ADR", portataKg: 3000, pericolosi: true, revisioneScadenza: "2026-12-05",
+    cerAutorizzati: ["150110", "160103", "150106"] },
+  { targa: "IL789MN", tipo: "Compattatore", portataKg: 9000, pericolosi: false, revisioneScadenza: "2027-02-01",
+    cerAutorizzati: ["150101", "150106"] },
+];
+
+const IMPIANTI = [
+  { id: "I1", nome: "Recupero Inerti Val Pescara (demo)", autorizzazioneScadenza: "2028-06-30",
+    cerAccettati: ["170904", "170107", "170504"], tariffe: { "170904": 28, "170107": 12, "170504": 9 } },
+  { id: "I2", nome: "Metalli Abruzzo (demo)", autorizzazioneScadenza: "2027-01-15",
+    cerAccettati: ["170405", "150106"], tariffe: { "170405": -180, "150106": 95 } },
+  { id: "I3", nome: "Piattaforma Speciali Chieti (demo)", autorizzazioneScadenza: "2026-12-10",
+    cerAccettati: ["150110", "160103", "150106", "150101"], tariffe: { "150110": 620, "160103": 160, "150106": 110, "150101": 20 } },
+];
+
+// Prezzi di fantasia al cliente (€/t sul peso a destino + € a viaggio). NON sono prezzi di mercato.
+const LISTINO = [
+  { cliente: "C01", cer: "170904", euroTonnellata: 45, euroViaggio: 120, minimoTonnellate: 2 },
+  { cliente: "C01", cer: "170107", euroTonnellata: 22, euroViaggio: 120, minimoTonnellate: 2 },
+  { cliente: "C01", cer: "170405", euroTonnellata: 0, euroViaggio: 90, minimoTonnellate: 0 },
+  { cliente: "C02", cer: "150110", euroTonnellata: 850, euroViaggio: 150, minimoTonnellate: 0 },
+  { cliente: "C02", cer: "160103", euroTonnellata: 220, euroViaggio: 110, minimoTonnellate: 0 },
+  { cliente: "C03", cer: "150101", euroTonnellata: 35, euroViaggio: 80, minimoTonnellate: 0 },
+  { cliente: "C03", cer: "150106", euroTonnellata: 140, euroViaggio: 80, minimoTonnellate: 0 },
+  { cliente: "C04", cer: "170504", euroTonnellata: 15, euroViaggio: 130, minimoTonnellate: 5 },
+];
+
+// Viaggi del mese (FIR di fantasia). kgDestino assente = FIR non ancora chiuso.
+const VIAGGI = [
+  { fir: "DEMO 000101", data: "2026-11-03", cliente: "C01", cer: "170904", targa: "AB123CD", impianto: "I1", kgPartenza: 8200, kgDestino: 8040, km: 34 },
+  { fir: "DEMO 000102", data: "2026-11-04", cliente: "C03", cer: "150101", targa: "IL789MN", impianto: "I3", kgPartenza: 2100, kgDestino: 2150, km: 28 },
+  { fir: "DEMO 000103", data: "2026-11-06", cliente: "C02", cer: "15 01 10*", targa: "EF456GH", impianto: "I3", kgPartenza: 420, kgDestino: 405, km: 22 },
+  { fir: "DEMO 000104", data: "2026-11-10", cliente: "C01", cer: "170107", targa: "AB123CD", impianto: "I1", kgPartenza: 1500, kgDestino: 1480, km: 34 },
+  { fir: "DEMO 000105", data: "2026-11-12", cliente: "C04", cer: "170504", targa: "AB123CD", impianto: "I1", kgPartenza: 12600, kgDestino: 11500, km: 18 },
+  { fir: "DEMO 000106", data: "2026-11-13", cliente: "C01", cer: "170405", targa: "AB123CD", impianto: "I2", kgPartenza: 3100, kgDestino: 3090, km: 41 },
+  { fir: "DEMO 000107", data: "2026-11-14", cliente: "C03", cer: "150106", targa: "IL789MN", impianto: "I3", kgPartenza: 1800, km: 28 },
+  { fir: "DEMO 000108", data: "2026-11-18", cliente: "C02", cer: "160103", targa: "EF456GH", impianto: "I3", kgPartenza: 950, kgDestino: 960, km: 22 },
+];
+
+// Ritiri richiesti per oggi (da controllare prima di partire).
+const RITIRI_OGGI = [
+  { id: "R1", cliente: "C01", cer: "170904", targa: "AB123CD", impianto: "I1", kgStimati: 9000, ora: "07:30" },
+  { id: "R2", cliente: "C02", cer: "15 01 10*", targa: "EF456GH", impianto: "I3", kgStimati: 500, ora: "09:00" },
+  { id: "R3", cliente: "C03", cer: "150106", targa: "AB123CD", impianto: "I1", kgStimati: 1200, ora: "10:30" },
+  { id: "R4", cliente: "C04", cer: "170504", targa: "AB123CD", impianto: "I1", kgStimati: 15500, ora: "13:00" },
+  { id: "R5", cliente: "C03", cer: "150101", targa: "IL789MN", impianto: "I3", kgStimati: 2500, ora: "15:00" },
+];
+
+const ELENCO_EER = {"fonte":"Decisione 2000/532/CE, testo consolidato IT al 01.06.2015 (CELEX 02000D0532-20150601), Ufficio pubblicazioni UE","url":"https://publications.europa.eu/resource/celex/02000D0532-20150601","voci":[["01","Rifiuti derivanti da prospezione, estrazione da miniera o cava, nonché dal trattamento fisico o chimico di minerali"],["02","Rifiuti prodotti da agricoltura, orticoltura, acquacoltura, selvicoltura, caccia e pesca, trattamento e preparazione di alimenti"],["03","Rifiuti della lavorazione del legno e della produzione di pannelli, mobili, polpa, carta e cartone"],["04","Rifiuti della lavorazione di pelli e pellicce e dell'industria tessile"],["05","Rifiuti della raffinazione del petrolio, purificazione del gas naturale e trattamento pirolitico del carbone"],["06","Rifiuti dei processi chimici inorganici"],["07","Rifiuti dei processi chimici organici"],["08","Rifiuti della produzione, formulazione, fornitura ed uso (PFFU) di rivestimenti (pitture, vernici e smalti vetrati), adesivi, sigillanti e inchiostri per stampa"],["09","Rifiuti dell'industria fotografica"],["10","Rifiuti provenienti da processi termici"],["11","Rifiuti prodotti dal trattamento chimico superficiale e dal rivestimento di metalli ed altri materiali; idrometallurgia non ferrosa"],["12","Rifiuti prodotti dalla lavorazione e dal trattamento fisico e meccanico superficiale di metalli e plastica"],["13","Oli esauriti e residui di combustibili liquidi (tranne oli commestibili, voci 05 e 12)"],["14","Solventi organici, refrigeranti e propellenti di scarto (tranne le voci 07 e 08)"],["15","Rifiuti di imballaggio; assorbenti, stracci, materiali filtranti e indumenti protettivi non specificati altrimenti"],["16","Rifiuti non specificati altrimenti nell'elenco"],["17","Rifiuti delle operazioni di costruzione e demolizione (compreso il terreno escavato proveniente da siti contaminati)"],["18","Rifiuti prodotti dal settore sanitario e veterinario o da attività di ricerca collegate (tranne i rifiuti di cucina e di ristorazione che non derivino direttamente da cure sanitarie)"],["19","Rifiuti prodotti da impianti di gestione dei rifiuti, impianti di trattamento delle acque reflue fuori sito, nonché dalla potabilizzazione dell'acqua e dalla sua preparazione per uso industriale"],["20","Rifiuti urbani (rifiuti domestici e assimilabili prodotti da attività commerciali e industriali nonché dalle istituzioni) inclusi i rifiuti della raccolta differenziata"],["01 01","rifiuti da estrazione di minerali"],["01 01 01","rifiuti da estrazione di minerali metalliferi"],["01 01 02","rifiuti da estrazione di minerali non metalliferi"],["01 03","rifiuti prodotti da trattamenti chimici e fisici di minerali metalliferi"],["01 03 04*","sterili che possono generare acido prodotti dalla lavorazione di minerale solforoso"],["01 03 05*","altri sterili contenenti sostanze pericolose"],["01 03 06","sterili diversi da quelli di cui alle voci 01 03 04 e 01 03 05"],["01 03 07*","altri rifiuti contenenti sostanze pericolose prodotte da trattamenti chimici e fisici di minerali metalliferi"],["01 03 08","polveri e residui affini, diversi da quelli di cui alla voce 01 03 07"],["01 03 09","fanghi rossi derivanti dalla produzione di allumina, diversi da quelli di cui alla voce 01 03 10"],["01 03 10*","fanghi rossi derivanti dalla produzione di allumina contenenti sostanze pericolose, diversi da quelli di cui alla voce 01 03 07"],["01 03 99","rifiuti non specificati altrimenti"],["01 04","rifiuti prodotti da trattamenti chimici e fisici di minerali non metalliferi"],["01 04 07*","rifiuti contenenti sostanze pericolose, prodotti da trattamenti chimici e fisici di minerali non metalliferi"],["01 04 08","scarti di ghiaia e pietrisco, diversi da quelli di cui alla voce 01 04 07"],["01 04 09","scarti di sabbia e argilla"],["01 04 10","polveri e residui affini, diversi da quelli di cui alla voce 01 04 07"],["01 04 11","rifiuti della lavorazione di potassa e salgemma, diversi da quelli di cui alla voce 01 04 07"],["01 04 12","sterili e altri residui del lavaggio e della pulitura di minerali, diversi da quelli di cui alle voci 01 04 07 e 01 04 11"],["01 04 13","rifiuti prodotti dal taglio e dalla segagione della pietra, diversi da quelli di cui alla voce 01 04 07"],["01 04 99","rifiuti non specificati altrimenti"],["01 05","fanghi di perforazione ed altri rifiuti di perforazione"],["01 05 04","fanghi e rifiuti di perforazione di pozzi per acque dolci"],["01 05 05*","fanghi e rifiuti di perforazione contenenti oli"],["01 05 06*","fanghi di perforazione ed altri rifiuti di perforazione contenenti sostanze pericolose"],["01 05 07","fanghi e rifiuti di perforazione contenenti barite, diversi da quelli delle voci 01 05 05 e 01 05 06"],["01 05 08","fanghi e rifiuti di perforazione contenenti cloruri, diversi da quelli delle voci 01 05 05 e 01 05 06"],["01 05 99","rifiuti non specificati altrimenti"],["02 01","rifiuti prodotti da agricoltura, orticoltura, acquacoltura, silvicoltura, caccia e pesca"],["02 01 01","fanghi da operazioni di lavaggio e pulizia"],["02 01 02","scarti di tessuti animali"],["02 01 03","scarti di tessuti vegetali"],["02 01 04","rifiuti plastici (ad esclusione degli imballaggi)"],["02 01 06","feci animali, urine e letame (comprese le lettiere usate), effluenti, raccolti separatamente e trattati fuori sito"],["02 01 07","rifiuti derivanti dalla silvicoltura"],["02 01 08*","rifiuti agrochimici contenenti sostanze pericolose"],["02 01 09","rifiuti agrochimici diversi da quelli della voce 02 01 08"],["02 01 10","rifiuti metallici"],["02 01 99","rifiuti non altrimenti specificati"],["02 02","rifiuti della preparazione e della lavorazione di carne, pesce ed altri alimenti di origine animale"],["02 02 01","fanghi da operazioni di lavaggio e pulizia"],["02 02 02","scarti di tessuti animali"],["02 02 03","scarti inutilizzabili per il consumo o la trasformazione"],["02 02 04","fanghi da trattamento in loco degli effluenti"],["02 02 99","rifiuti non specificati altrimenti"],["02 03","rifiuti della preparazione e del trattamento di frutta, verdura, cereali, oli alimentari, cacao, caffè, tè e tabacco; della produzione di conserve alimentari; della produzione di lievito ed estratto di lievito; della preparazione e fermentazione di melassa"],["02 03 01","fanghi prodotti da operazioni di lavaggio, pulizia, sbucciatura, centrifugazione e separazione"],["02 03 02","rifiuti legati all'impiego di conservanti"],["02 03 03","rifiuti prodotti dall'estrazione tramite solvente"],["02 03 04","scarti inutilizzabili per il consumo o la trasformazione"],["02 03 05","fanghi da trattamento in loco degli effluenti"],["02 03 99","rifiuti non specificati altrimenti"],["02 04","rifiuti prodotti dalla raffinazione dello zucchero"],["02 04 01","terriccio residuo delle operazioni di pulizia e lavaggio delle barbabietole"],["02 04 02","carbonato di calcio fuori specifica"],["02 04 03","fanghi da trattamento in loco degli effluenti"],["02 04 99","rifiuti non specificati altrimenti"],["02 05","rifiuti dell'industria lattiero-casearia"],["02 05 01","scarti inutilizzabili per il consumo o la trasformazione"],["02 05 02","fanghi da trattamento in loco degli effluenti"],["02 05 99","rifiuti non specificati altrimenti"],["02 06","rifiuti dell'industria dolciaria e della panificazione"],["02 06 01","scarti inutilizzabili per il consumo o la trasformazione"],["02 06 02","rifiuti prodotti dall'impiego di conservanti"],["02 06 03","fanghi da trattamento in loco degli effluenti"],["02 06 99","rifiuti non specificati altrimenti"],["02 07","rifiuti della produzione di bevande alcoliche ed analcoliche (tranne caffè, tè e cacao)"],["02 07 01","rifiuti prodotti dalle operazioni di lavaggio, pulizia e macinazione della materia prima"],["02 07 02","rifiuti prodotti dalla distillazione di bevande alcoliche"],["02 07 03","rifiuti prodotti dai trattamenti chimici"],["02 07 04","scarti inutilizzabili per il consumo o la trasformazione"],["02 07 05","fanghi da trattamento in loco degli effluenti"],["02 07 99","rifiuti non specificati altrimenti"],["03 01","rifiuti della lavorazione del legno e della produzione di pannelli e mobili"],["03 01 01","scarti di corteccia e sughero"],["03 01 04*","segatura, trucioli, residui di taglio, legno, pannelli di truciolare e piallacci contenenti sostanze pericolose"],["03 01 05","segatura, trucioli, residui di taglio, legno, pannelli di truciolare e piallacci diversi da quelli di cui alla voce 03 01 04"],["03 01 99","rifiuti non specificati altrimenti"],["03 02","rifiuti dei trattamenti conservativi del legno"],["03 02 01*","preservanti del legno contenenti composti organici non alogenati"],["03 02 02*","prodotti per i trattamenti conservativi del legno contenenti composti organici clorurati"],["03 02 03*","prodotti per i trattamenti conservativi del legno contenenti composti organometallici"],["03 02 04*","prodotti per i trattamenti conservativi del legno contenenti composti inorganici"],["03 02 05*","altri prodotti per i trattamenti conservativi del legno contenenti sostanze pericolose"],["03 02 99","prodotti per i trattamenti conservativi del legno non altrimenti specificati"],["03 03","rifiuti della produzione e della lavorazione di polpa, carta e cartone"],["03 03 01","scarti di corteccia e legno"],["03 03 02","fanghi di recupero dei bagni di macerazione (green liquor)"],["03 03 05","fanghi derivanti da processi di deinchiostrazione nel riciclaggio della carta"],["03 03 07","scarti della separazione meccanica nella produzione di polpa da rifiuti di carta e cartone"],["03 03 08","scarti della selezione di carta e cartone destinati ad essere riciclati"],["03 03 09","fanghi di scarto contenenti carbonato di calcio"],["03 03 10","scarti di fibre e fanghi contenenti fibre, riempitivi e prodotti di rivestimento generati dai processi di separazione meccanica"],["03 03 11","fanghi prodotti dal trattamento in loco degli effluenti, diversi da quelli di cui alla voce 03 03 10"],["03 03 99","rifiuti non specificati altrimenti"],["04 01","rifiuti della lavorazione di pelli e pellicce"],["04 01 01","carniccio e frammenti di calce"],["04 01 02","rifiuti di calcinazione"],["04 01 03*","bagni di sgrassatura esauriti contenenti solventi senza fase liquida"],["04 01 04","liquido di concia contenente cromo"],["04 01 05","liquido di concia non contenente cromo"],["04 01 06","fanghi, prodotti in particolare dal trattamento in loco degli effluenti, contenenti cromo"],["04 01 07","fanghi, prodotti in particolare dal trattamento in loco degli effluenti, non contenenti cromo"],["04 01 08","rifiuti di cuoio conciato (scarti, cascami, ritagli, polveri di lucidatura) contenenti cromo"],["04 01 09","rifiuti delle operazioni di confezionamento e finitura"],["04 01 99","rifiuti non specificati altrimenti"],["04 02","rifiuti dell'industria tessile"],["04 02 09","rifiuti da materiali compositi (fibre impregnate, elastomeri, plastomeri)"],["04 02 10","materiale organico proveniente da prodotti naturali (ad esempio grasso, cera)"],["04 02 14*","rifiuti provenienti da operazioni di finitura, contenenti solventi organici"],["04 02 15","rifiuti da operazioni di finitura, diversi da quelli di cui alla voce 04 02 14"],["04 02 16*","tinture e pigmenti contenenti sostanze pericolose"],["04 02 17","tinture e pigmenti, diversi da quelli di cui alla voce 04 02 16"],["04 02 19*","fanghi prodotti dal trattamento in loco degli effluenti, contenenti sostanze pericolose"],["04 02 20","fanghi prodotti dal trattamento in loco degli effluenti, diversi da quelli di cui alla voce 04 02 19"],["04 02 21","rifiuti da fibre tessili grezze"],["04 02 22","rifiuti da fibre tessili lavorate"],["04 02 99","rifiuti non specificati altrimenti"],["05 01","rifiuti della raffinazione del petrolio"],["05 01 02*","fanghi da processi di dissalazione"],["05 01 03*","morchie da fondi di serbatoi"],["05 01 04*","fanghi acidi prodotti da processi di alchilazione"],["05 01 05*","perdite di olio"],["05 01 06*","fanghi oleosi prodotti dalla manutenzione di impianti e apparecchiature"],["05 01 07*","catrami acidi"],["05 01 08*","altri catrami"],["05 01 09*","fanghi prodotti dal trattamento in loco degli effluenti, contenenti sostanze pericolose"],["05 01 10","fanghi prodotti dal trattamento in loco degli effluenti, diversi da quelli di cui alla voce 05 01 09"],["05 01 11*","rifiuti prodotti dalla purificazione di carburanti mediante basi"],["05 01 12*","acidi contenenti oli"],["05 01 13","fanghi residui dell'acqua di alimentazione delle caldaie"],["05 01 14","rifiuti prodotti dalle torri di raffreddamento"],["05 01 15*","filtri di argilla esauriti"],["05 01 16","rifiuti contenenti zolfo prodotti dalla desolforizzazione del petrolio"],["05 01 17","Bitume"],["05 01 99","rifiuti non altrimenti specificati"],["05 06","rifiuti prodotti dal trattamento pirolitico del carbone"],["05 06 01*","catrami acidi"],["05 06 03*","altri catrami"],["05 06 04","rifiuti prodotti dalle torri di raffreddamento"],["05 06 99","rifiuti non specificati altrimenti"],["05 07","rifiuti prodotti dalla purificazione e dal trasporto di gas naturale"],["05 07 01*","rifiuti contenenti mercurio"],["05 07 02","rifiuti contenenti zolfo"],["05 07 99","rifiuti non altrimenti specificati"],["06 01","rifiuti della produzione, formulazione, fornitura ed uso di acidi"],["06 01 01*","acido solforico e acido solforoso"],["06 01 02*","acido cloridrico"],["06 01 03*","acido fluoridrico"],["06 01 04*","acido fosforico e fosforoso"],["06 01 05*","acido nitrico e acido nitroso"],["06 01 06*","altri acidi"],["06 01 99","rifiuti non altrimenti specificati"],["06 02","rifiuti della produzione, formulazione, fornitura ed uso di basi"],["06 02 01*","idrossido di calcio"],["06 02 03*","idrossido di ammonio"],["06 02 04*","idrossido di sodio e di potassio"],["06 02 05*","altre basi"],["06 02 99","rifiuti non specificati altrimenti"],["06 03","rifiuti della produzione, formulazione, fornitura ed uso di sali, loro soluzioni e ossidi metallici"],["06 03 11*","sali e loro soluzioni, contenenti cianuri"],["06 03 13*","sali e loro soluzioni, contenenti metalli pesanti"],["06 03 14","sali e loro soluzioni, diversi da quelli di cui alle voci 06 03 11 e 06 03 13"],["06 03 15*","ossidi metallici contenenti metalli pesanti"],["06 03 16","ossidi metallici, diversi da quelli di cui alla voce 06 03 15"],["06 03 99","rifiuti non specificati altrimenti"],["06 04","rifiuti contenenti metalli, diversi da quelli di cui alla voce 06 03"],["06 04 03*","rifiuti contenenti arsenico"],["06 04 04*","rifiuti contenenti mercurio"],["06 04 05*","rifiuti contenenti altri metalli pesanti"],["06 04 99","rifiuti non specificati altrimenti"],["06 05","fanghi da trattamento in loco degli effluenti"],["06 05 02*","fanghi prodotti dal trattamento in loco di effluenti, contenenti sostanze pericolose"],["06 05 03","fanghi prodotti dal trattamento in loco degli effluenti, diversi da quelli di cui alla voce 06 05 02"],["06 06","rifiuti della produzione, formulazione, fornitura ed uso di prodotti chimici contenenti zolfo, dei processi chimici dello zolfo e dei processi di desolforazione"],["06 06 02*","rifiuti contenenti solfuri pericolosi"],["06 06 03","rifiuti contenenti solfuri, diversi da quelli di cui alla voce 06 06 02"],["06 06 99","rifiuti non altrimenti specificati"],["06 07","rifiuti della produzione, formulazione, fornitura ed uso di prodotti alogeni e dei processi chimici degli alogeni"],["06 07 01*","rifiuti dei processi elettrolitici, contenenti amianto"],["06 07 02*","carbone attivato dalla produzione di cloro"],["06 07 03*","fanghi di solfati di bario, contenenti mercurio"],["06 07 04*","soluzioni ed acidi, ad esempio acido di contatto"],["06 07 99","rifiuti non specificati altrimenti"],["06 08","rifiuti della produzione, formulazione, fornitura ed uso del silicio e dei suoi derivati"],["06 08 02*","rifiuti contenenti clorosilani pericolosi"],["06 08 99","rifiuti non altrimenti specificati"],["06 09","rifiuti della produzione, formulazione, fornitura ed uso di prodotti fosforosi e dei processi chimici del fosforo"],["06 09 02","scorie fosforose"],["06 09 03*","rifiuti prodotti da reazioni a base di calcio contenenti o contaminati da sostanze pericolose"],["06 09 04","rifiuti prodotti da reazioni a base di calcio, diversi da quelli di cui alla voce 06 09 03"],["06 09 99","rifiuti non altrimenti specificati"],["06 10","rifiuti della produzione, formulazione, fornitura ed uso di prodotti chimici contenenti azoto, dei processi chimici dell'azoto e della produzione di fertilizzanti"],["06 10 02*","rifiuti contenenti sostanze pericolose"],["06 10 99","rifiuti non altrimenti specificati"],["06 11","rifiuti dalla produzione di pigmenti inorganici ed opacificanti"],["06 11 01","rifiuti prodotti da reazioni a base di calcio nella produzione di diossido di titanio"],["06 11 99","rifiuti non specificati altrimenti"],["06 13","rifiuti di processi chimici inorganici non specificati altrimenti"],["06 13 01*","prodotti fitosanitari, agenti conservativi del legno ed altri biocidi inorganici"],["06 13 02*","carbone attivo esaurito (tranne 06 07 02)"],["06 13 03","nerofumo"],["06 13 04*","rifiuti derivanti dai processi di lavorazione dell'amianto"],["06 13 05*","Fuliggine"],["06 13 99","rifiuti non specificati altrimenti"],["07 01","rifiuti della produzione, formulazione, fornitura ed uso di prodotti chimici organici di base"],["07 01 01*","soluzioni acquose di lavaggio e acque madri"],["07 01 03*","solventi organici alogenati, soluzioni di lavaggio e acque madri"],["07 01 04*","altri solventi organici, soluzioni di lavaggio e acque madri"],["07 01 07*","fondi e residui di reazione, alogenati"],["07 01 08*","altri fondi e residui di reazione"],["07 01 09*","residui di filtrazione e assorbenti esauriti alogenati"],["07 01 10*","altri residui di filtrazione e assorbenti esauriti"],["07 01 11*","fanghi prodotti dal trattamento in loco degli effluenti, contenenti sostanze pericolose"],["07 01 12","fanghi prodotti dal trattamento in loco degli effluenti, diversi da quelli di cui alla voce 07 01 11"],["07 01 99","rifiuti non altrimenti specificati"],["07 02","rifiuti della produzione, formulazione, fornitura ed uso di plastiche, gomme sintetiche e fibre artificiali"],["07 02 01*","soluzioni acquose di lavaggio e acque madri"],["07 02 03*","solventi organici alogenati, soluzioni di lavaggio e acque madri"],["07 02 04*","altri solventi organici, soluzioni di lavaggio e acque madri"],["07 02 07*","fondi e residui di reazione, alogenati"],["07 02 08*","altri fondi e residui di reazione"],["07 02 09*","residui di filtrazione e assorbenti esauriti alogenati"],["07 02 10*","altri residui di filtrazione e assorbenti esauriti"],["07 02 11*","fanghi prodotti dal trattamento in loco degli effluenti, contenenti sostanze pericolose"],["07 02 12","fanghi prodotti dal trattamento in loco degli effluenti, diversi da quelli di cui alla voce 07 02 11"],["07 02 13","rifiuti plastici"],["07 02 14*","rifiuti prodotti da additivi, contenenti sostanze pericolose"],["07 02 15","rifiuti prodotti da additivi, diversi da quelli di cui alla voce 07 02 14"],["07 02 16*","rifiuti contenenti siliconi pericolosi"],["07 02 17","rifiuti contenenti siliconi, diversi da quelli di cui alla voce 07 02 16"],["07 02 99","rifiuti non specificati altrimenti"],["07 03","rifiuti della produzione, formulazione, fornitura ed uso di coloranti e pigmenti organici (tranne 06 11)"],["07 03 01*","soluzioni acquose di lavaggio e acque madri"],["07 03 03*","solventi organici alogenati, soluzioni di lavaggio e acque madri"],["07 03 04*","altri solventi organici, soluzioni di lavaggio e acque madri"],["07 03 07*","fondi e residui di reazione, alogenati"],["07 03 08*","altri fondi e residui di reazione"],["07 03 09*","residui di filtrazione e assorbenti esauriti, alogenati"],["07 03 10*","altri residui di filtrazione e assorbenti esauriti"],["07 03 11*","fanghi prodotti dal trattamento in loco degli effluenti, contenenti sostanze pericolose"],["07 03 12","fanghi prodotti dal trattamento in loco degli effluenti, diversi da quelli di cui alla voce 07 03 11"],["07 03 99","rifiuti non specificati altrimenti"],["07 04","rifiuti della produzione, formulazione, fornitura ed uso di prodotti fitosanitari (tranne 02 01 08 e 02 01 09), agenti conservativi del legno (tranne 03 02) ed altri biocidi, organici"],["07 04 01*","soluzioni acquose di lavaggio e acque madri"],["07 04 03*","solventi organici alogenati, soluzioni di lavaggio e acque madri"],["07 04 04*","altri solventi organici, soluzioni di lavaggio e acque madri"],["07 04 07*","fondi e residui di reazione, alogenati"],["07 04 08*","altri fondi e residui di reazione"],["07 04 09*","residui di filtrazione e assorbenti esauriti alogenati"],["07 04 10*","altri residui di filtrazione e assorbenti esauriti"],["07 04 11*","fanghi prodotti dal trattamento in loco degli effluenti, contenenti sostanze pericolose"],["07 04 12","fanghi prodotti dal trattamento in loco degli effluenti, diversi da quelli di cui alla voce 07 04 11"],["07 04 13*","rifiuti solidi contenenti sostanze pericolose"],["07 04 99","rifiuti non specificati altrimenti"],["07 05","rifiuti della produzione, formulazione, fornitura ed uso di prodotti farmaceutici"],["07 05 01*","soluzioni acquose di lavaggio e acque madri"],["07 05 03*","solventi organici alogenati, soluzioni di lavaggio e acque madri"],["07 05 04*","altri solventi organici, soluzioni di lavaggio e acque madri"],["07 05 07*","fondi e residui di reazione, alogenati"],["07 05 08*","altri fondi e residui di reazione"],["07 05 09*","residui di filtrazione e assorbenti esauriti alogenati"],["07 05 10*","altri residui di filtrazione e assorbenti esauriti"],["07 05 11*","fanghi prodotti dal trattamento in loco degli effluenti, contenenti sostanze pericolose"],["07 05 12","fanghi prodotti dal trattamento in loco degli effluenti, diversi da quelli di cui alla voce 07 05 11"],["07 05 13*","rifiuti solidi contenenti sostanze pericolose"],["07 05 14","rifiuti solidi diversi da quelli di cui alla voce 07 05 13"],["07 05 99","rifiuti non specificati altrimenti"],["07 06","rifiuti della produzione, formulazione, fornitura ed uso di grassi, lubrificanti, saponi, detergenti, disinfettanti e cosmetici"],["07 06 01*","soluzioni acquose di lavaggio e acque madri"],["07 06 03*","solventi organici alogenati, soluzioni di lavaggio e acque madri"],["07 06 04*","altri solventi organici, soluzioni di lavaggio e acque madri"],["07 06 07*","fondi e residui di reazione, alogenati"],["07 06 08*","altri fondi e residui di reazione"],["07 06 09*","residui di filtrazione e assorbenti esauriti alogenati"],["07 06 10*","altri residui di filtrazione e assorbenti esauriti"],["07 06 11*","fanghi prodotti dal trattamento in loco di effluenti contenenti sostanze pericolose"],["07 06 12","fanghi prodotti dal trattamento in loco di effluenti, diversi da quelli di cui alla voce 07 06 11"],["07 06 99","rifiuti non specificati altrimenti"],["07 07","rifiuti della produzione, formulazione, fornitura ed uso di prodotti della chimica fine e di prodotti chimici non specificati altrimenti"],["07 07 01*","soluzioni acquose di lavaggio e acque madri"],["07 07 03*","solventi organici alogenati, soluzioni di lavaggio e acque madri"],["07 07 04*","altri solventi organici, soluzioni di lavaggio e acque madri"],["07 07 07*","fondi e residui di reazione, alogenati"],["07 07 08*","altri fondi e residui di reazione"],["07 07 09*","residui di filtrazione e assorbenti esauriti alogenati"],["07 07 10*","altri residui di filtrazione e assorbenti esauriti"],["07 07 11*","fanghi prodotti dal trattamento in loco degli effluenti, contenenti sostanze pericolose"],["07 07 12","fanghi prodotti dal trattamento in loco degli effluenti, diversi da quelli di cui alla voce 07 07 11"],["07 07 99","rifiuti non specificati altrimenti"],["08 01","rifiuti della produzione, formulazione, fornitura ed uso nonché della rimozione di pitture e vernici"],["08 01 11*","pitture e vernici di scarto, contenenti solventi organici o altre sostanze pericolose"],["08 01 12","pitture e vernici di scarto, diverse da quelle di cui alla voce 08 01 11"],["08 01 13*","fanghi prodotti da pitture e vernici, contenenti solventi organici o altre sostanze pericolose"],["08 01 14","fanghi prodotti da pitture e vernici, diversi da quelli di cui alla voce 08 01 13"],["08 01 15*","fanghi acquosi contenenti pitture e vernici, contenenti solventi organici o altre sostanze pericolose"],["08 01 16","fanghi acquosi contenenti pitture e vernici, diversi da quelli di cui alla voce 08 01 15"],["08 01 17*","fanghi prodotti dalla rimozione di pitture e vernici, contenenti solventi organici o altre sostanze pericolose"],["08 01 18","fanghi prodotti dalla rimozione di pitture e vernici, diversi da quelli di cui alla voce 08 01 17"],["08 01 19*","sospensioni acquose contenenti pitture e vernici, contenenti solventi organici o altre sostanze pericolose"],["08 01 20","sospensioni acquose contenenti pitture e vernici, diverse da quelle di cui alla voce 08 01 19"],["08 01 21*","residui di pittura o di sverniciatori"],["08 01 99","rifiuti non specificati altrimenti"],["08 02","rifiuti della produzione, formulazione, fornitura ed uso di altri rivestimenti (inclusi materiali ceramici)"],["08 02 01","polveri di scarti di rivestimenti"],["08 02 02","fanghi acquosi contenenti materiali ceramici"],["08 02 03","sospensioni acquose contenenti materiali ceramici"],["08 02 99","rifiuti non specificati altrimenti"],["08 03","rifiuti della produzione, formulazione, fornitura ed uso di inchiostri per stampa"],["08 03 07","fanghi acquosi contenenti inchiostro"],["08 03 08","rifiuti liquidi acquosi contenenti inchiostro"],["08 03 12*","scarti di inchiostro, contenenti sostanze pericolose"],["08 03 13","scarti di inchiostro, diversi da quelli di cui alla voce 08 03 12"],["08 03 14*","fanghi di inchiostro, contenenti sostanze pericolose"],["08 03 15","fanghi di inchiostro, diversi da quelli di cui alla voce 08 03 14"],["08 03 16*","residui di soluzioni per incisione"],["08 03 17*","toner per stampa esauriti, contenenti sostanze pericolose"],["08 03 18","toner per stampa esauriti, diversi da quelli di cui alla voce 08 03 17"],["08 03 19*","oli dispersi"],["08 03 99","rifiuti non specificati altrimenti"],["08 04","rifiuti della produzione, formulazione, fornitura ed uso di adesivi e sigillanti (inclusi prodotti impermeabilizzanti)"],["08 04 09*","adesivi e sigillanti di scarto, contenenti solventi organici o altre sostanze pericolose"],["08 04 10","adesivi e sigillanti di scarto, diversi da quelli di cui alla voce 08 04 09"],["08 04 11*","fanghi di adesivi e sigillanti, contenenti solventi organici o altre sostanze pericolose"],["08 04 12","fanghi di adesivi e sigillanti, diversi da quelli di cui alla voce 08 04 11"],["08 04 13*","fanghi acquosi contenenti adesivi o sigillanti, contenenti solventi organici o altre sostanze pericolose"],["08 04 14","fanghi acquosi contenenti adesivi o sigillanti, diversi da quelli di cui alla voce 08 04 13"],["08 04 15*","rifiuti liquidi acquosi contenenti adesivi o sigillanti, contenenti solventi organici o altre sostanze pericolose"],["08 04 16","rifiuti liquidi acquosi contenenti adesivi o sigillanti, diversi da quelli di cui alla voce 08 04 15"],["08 04 17*","olio di resina"],["08 04 99","rifiuti non specificati altrimenti"],["08 05","rifiuti non specificati altrimenti alla voce 08"],["08 05 01*","isocianati di scarto"],["09 01","rifiuti dell'industria fotografica"],["09 01 01*","soluzioni di sviluppo e soluzioni attivanti a base acquosa"],["09 01 02*","soluzioni di sviluppo per lastre offset a base acquosa"],["09 01 03*","soluzioni di sviluppo a base di solventi"],["09 01 04*","soluzioni di fissaggio"],["09 01 05*","soluzioni di lavaggio e soluzioni di arresto-fissaggio"],["09 01 06*","rifiuti contenenti argento prodotti dal trattamento in loco di rifiuti fotografici"],["09 01 07","pellicole e carta per fotografia, contenenti argento o composti dell'argento"],["09 01 08","pellicole e carta per fotografia, non contenenti argento o composti dell'argento"],["09 01 10","macchine fotografiche monouso senza batterie"],["09 01 11*","macchine fotografiche monouso contenenti batterie incluse nelle voci 16 06 01, 16 06 02 o 16 06 03"],["09 01 12","macchine fotografiche monouso diverse da quelle di cui alla voce 09 01 11"],["09 01 13*","rifiuti liquidi acquosi prodotti dal recupero in loco dell'argento, diversi da quelli di cui alla voce 09 01 06"],["09 01 99","rifiuti non specificati altrimenti"],["10 01","rifiuti prodotti da centrali termiche e altri impianti termici (tranne 19)"],["10 01 01","ceneri pesanti, scorie e polveri di caldaia (tranne le polveri di caldaia di cui alla voce 10 01 04)"],["10 01 02","ceneri leggere di carbone"],["10 01 03","ceneri leggere di torba e di legno non trattato"],["10 01 04*","ceneri leggere di olio combustibile e polveri di caldaia"],["10 01 05","rifiuti solidi prodotti da reazioni a base di calcio nei processi di desolforazione dei fumi"],["10 01 07","rifiuti fangosi prodotti da reazioni a base di calcio nei processi di desolforazione dei fumi"],["10 01 09*","acido solforico"],["10 01 13*","ceneri leggere prodotte da idrocarburi emulsionati usati come combustibile"],["10 01 14*","ceneri pesanti, scorie e polveri di caldaia prodotte dal coincenerimento, contenenti sostanze pericolose"],["10 01 15","ceneri pesanti, scorie e polveri di caldaia prodotti dal coincenerimento, diversi da quelli di cui alla voce 10 01 04"],["10 01 16*","ceneri leggere prodotte dal coincenerimento, contenenti sostanze pericolose"],["10 01 17","ceneri leggere prodotte dal coincenerimento, diverse da quelle di cui alla voce 10 01 16"],["10 01 18*","rifiuti prodotti dalla depurazione dei fumi, contenenti sostanze pericolose"],["10 01 19","rifiuti prodotti dalla depurazione dei fumi, diversi da quelli di cui alle voci 10 01 05, 10 01 07 e 10 01 18"],["10 01 20*","fanghi prodotti dal trattamento in loco degli effluenti, contenenti sostanze pericolose"],["10 01 21","fanghi prodotti dal trattamento in loco degli effluenti, diversi da quelli di cui alla voce 10 01 20"],["10 01 22*","fanghi acquosi da operazioni di pulizia di caldaie, contenenti sostanze pericolose"],["10 01 23","fanghi acquosi da operazioni di pulizia di caldaie, diversi da quelli di cui alla voce 10 01 22"],["10 01 24","sabbie dei reattori a letto fluidizzato"],["10 01 25","rifiuti dell'immagazzinamento e della preparazione del combustibile delle centrali termoelettriche a carbone"],["10 01 26","rifiuti prodotti dal trattamento delle acque di raffreddamento"],["10 01 99","rifiuti non specificati altrimenti"],["10 02","rifiuti dell'industria siderurgica"],["10 02 01","rifiuti del trattamento delle scorie"],["10 02 02","scorie non trattate"],["10 02 07*","rifiuti solidi prodotti dal trattamento dei fumi, contenenti sostanze pericolose"],["10 02 08","rifiuti solidi prodotti dal trattamento dei fumi, diversi da quelli di cui alla voce 10 02 07"],["10 02 10","scaglie di laminazione"],["10 02 11*","rifiuti prodotti dal trattamento delle acque di raffreddamento, contenenti oli"],["10 02 12","rifiuti prodotti dal trattamento delle acque di raffreddamento, diversi da quelli di cui alla voce 10 02 11"],["10 02 13*","fanghi e residui di filtrazione prodotti dal trattamento dei fumi, contenenti sostanze pericolose"],["10 02 14","fanghi e residui di filtrazione prodotti dal trattamento dei fumi, diversi da quelli di cui alla voce 10 02 13"],["10 02 15","altri fanghi e residui di filtrazione"],["10 02 99","rifiuti non specificati altrimenti"],["10 03","rifiuti della metallurgia termica dell'alluminio"],["10 03 02","frammenti di anodi"],["10 03 04*","scorie della produzione primaria"],["10 03 05","rifiuti di allumina"],["10 03 08*","scorie saline della produzione secondaria"],["10 03 09*","scorie nere della produzione secondaria"],["10 03 15*","schiumature infiammabili o che rilasciano, al contatto con l'acqua, gas infiammabili in quantità pericolose"],["10 03 16","schiumature diverse da quelle di cui alla voce 10 03 15"],["10 03 17*","rifiuti contenenti catrame derivanti dalla produzione di anodi"],["10 03 18","rifiuti contenenti carbonio derivanti dalla produzione di anodi, diversi da quelli di cui alla voce 10 03 17"],["10 03 19*","polveri dei gas di combustione contenenti sostanze pericolose"],["10 03 20","polveri di gas di combustione, diverse da quelle di cui alla voce 10 03 19"],["10 03 21*","altri particolati e polveri (compresi quelli prodotti da mulini a palle), contenenti sostanze pericolose"],["10 03 22","altri particolati e polveri (compresi quelli prodotte da mulini a palle), diversi da quelli di cui alla voce 10 03 21"],["10 03 23*","rifiuti solidi prodotti dal trattamento dei fumi, contenenti sostanze pericolose"],["10 03 24","rifiuti solidi prodotti dal trattamento dei fumi, diversi da quelli di cui alla voce 10 03 23"],["10 03 25*","fanghi e residui di filtrazione prodotti dal trattamento dei fumi, contenenti sostanze pericolose"],["10 03 26","fanghi e residui di filtrazione prodotti dal trattamento dei fumi, diversi da quelli di cui alla voce 10 03 25"],["10 03 27*","rifiuti prodotti dal trattamento delle acque di raffreddamento, contenenti oli"],["10 03 28","rifiuti prodotti dal trattamento delle acque di raffreddamento, diversi da quelli di cui alla voce 10 03 27"],["10 03 29*","rifiuti prodotti dal trattamento di scorie saline e scorie nere, contenenti sostanze pericolose"],["10 03 30","rifiuti prodotti dal trattamento di scorie saline e scorie nere, diversi da quelli di cui alla voce 10 03 29"],["10 03 99","rifiuti non specificati altrimenti"],["10 04","rifiuti della metallurgia termica del piombo"],["10 04 01*","scorie della produzione primaria e secondaria"],["10 04 02*","scorie e schiumature della produzione primaria e secondaria"],["10 04 03*","arsenato di calcio"],["10 04 04*","polveri di gas di combustione"],["10 04 05*","altre polveri e particolato"],["10 04 06*","rifiuti solidi prodotti dal trattamento dei fumi"],["10 04 07*","fanghi e residui di filtrazione prodotti dal trattamento dei fumi"],["10 04 09*","rifiuti prodotti dal trattamento delle acque di raffreddamento, contenenti oli"],["10 04 10","rifiuti prodotti dal trattamento delle acque di raffreddamento, diversi da quelli di cui alla voce 10 4 09"],["10 04 99","rifiuti non specificati altrimenti"],["10 05","rifiuti della metallurgia termica dello zinco"],["10 05 01","scorie della produzione primaria e secondaria"],["10 05 03*","polveri di gas di combustione"],["10 05 04","altre polveri e particolato"],["10 05 05*","rifiuti solidi derivanti dal trattamento dei fumi"],["10 05 06*","fanghi e residui di filtrazione prodotti dal trattamento dei fumi"],["10 05 08*","rifiuti prodotti dal trattamento delle acque di raffreddamento, contenenti oli"],["10 05 09","rifiuti prodotti dal trattamento delle acque di raffreddamento, diversi da quelli di cui alla voce 10 05 08"],["10 05 10*","scorie e schiumature infiammabili o che rilasciano, al contatto con l'acqua, gas infiammabili in quantità pericolose"],["10 05 11","scorie e schiumature diverse da quelle di cui alla voce 10 05 10"],["10 05 99","rifiuti non specificati altrimenti"],["10 06","rifiuti della metallurgia termica del rame"],["10 06 01","scorie della produzione primaria e secondaria"],["10 06 02","scorie e schiumature della produzione primaria e secondaria"],["10 06 03*","polveri di gas di combustione"],["10 06 04","altre polveri e particolato"],["10 06 06*","rifiuti solidi prodotti dal trattamento dei fumi"],["10 06 07*","fanghi e residui di filtrazione prodotti dal trattamento dei fumi"],["10 06 09*","rifiuti prodotti dal trattamento delle acque di raffreddamento, contenenti oli"],["10 06 10","rifiuti prodotti dal trattamento delle acque di raffreddamento, diversi da quelli di cui alla voce 10 06 09"],["10 06 99","rifiuti non specificati altrimenti"],["10 07","rifiuti della metallurgia termica di argento, oro e platino"],["10 07 01","scorie della produzione primaria e secondaria"],["10 07 02","scorie e schiumature della produzione primaria e secondaria"],["10 07 03","rifiuti solidi prodotti dal trattamento dei fumi"],["10 07 04","altre polveri e particolato"],["10 07 05","fanghi e residui di filtrazione prodotti dal trattamento dei fumi"],["10 07 07*","rifiuti prodotti dal trattamento delle acque di raffreddamento, contenenti oli"],["10 07 08","rifiuti prodotti dal trattamento delle acque di raffreddamento, diversi da quelli di cui alla voce 10 07 07"],["10 07 99","rifiuti non specificati altrimenti"],["10 08","rifiuti della metallurgia termica di altri minerali non ferrosi"],["10 08 04","particolato e polveri"],["10 08 08*","scorie saline della produzione primaria e secondaria"],["10 08 09","altre scorie"],["10 08 10*","scorie e schiumature infiammabili o che rilasciano, al contatto con l'acqua, gas infiammabili in quantità pericolose"],["10 08 11","scorie e schiumature diverse da quelle di cui alla voce 10 08 10"],["10 08 12*","rifiuti contenenti catrame derivanti dalla produzione di anodi"],["10 08 13","rifiuti contenenti carbonio derivanti dalla produzione di anodi, diversi da quelli di cui alla voce 10 08 12"],["10 08 14","frammenti di anodi"],["10 08 15*","polveri dei gas di combustione contenenti sostanze pericolose"],["10 08 16","polveri di gas di combustione, diverse da quelle di cui alla voce 10 08 15"],["10 08 17*","fanghi e residui di filtrazione prodotti dal trattamento di fumi, contenenti sostanze pericolose"],["10 08 18","fanghi e residui di filtrazione prodotti dal trattamento di fumi, diversi da quelli di cui alla voce 10 08 17"],["10 08 19*","rifiuti prodotti dal trattamento delle acque di raffreddamento, contenenti oli"],["10 08 20","rifiuti prodotti dal trattamento delle acque di raffreddamento, diversi da quelli di cui alla voce 10 08 19"],["10 08 99","rifiuti non specificati altrimenti"],["10 09","rifiuti della fusione di materiali ferrosi"],["10 09 03","scorie di fusione"],["10 09 05*","forme e anime da fonderia inutilizzate, contenenti sostanze pericolose"],["10 09 06","forme e anime da fonderia inutilizzate, diverse da quelle di cui alla voce 10 09 05"],["10 09 07*","forme e anime da fonderia utilizzate, contenenti sostanze pericolose"],["10 09 08","forme e anime da fonderia utilizzate, diverse da quelle di cui alla voce 10 09 07"],["10 09 09*","polveri dei gas di combustione contenenti sostanze pericolose"],["10 09 10","polveri dei gas di combustione, diverse da quelle di cui alla voce 10 09 09"],["10 09 11*","altri particolati contenenti sostanze pericolose"],["10 09 12","altri particolati diversi da quelli di cui alla voce 10 09 11"],["10 09 13*","scarti di leganti contenenti sostanze pericolose"],["10 09 14","scarti di leganti diversi da quelli di cui alla voce 10 09 13"],["10 09 15*","scarti di rilevatori di crepe, contenenti sostanze pericolose"],["10 09 16","scarti di rilevatori di crepe, diversi da quelli di cui alla voce 10 09 15"],["10 09 99","rifiuti non specificati altrimenti"],["10 10","rifiuti della fusione di materiali non ferrosi"],["10 10 03","scorie di fusione"],["10 10 05*","forme e anime da fonderia inutilizzate, contenenti sostanze pericolose"],["10 10 06","forme e anime da fonderia inutilizzate, diverse da quelle di cui alla voce 10 10 05"],["10 10 07*","forme e anime da fonderia utilizzate, contenenti sostanze pericolose"],["10 10 08","forme e anime da fonderia utilizzate, diverse da quelle di cui alla voce 10 10 07"],["10 10 09*","polveri di gas di combustione contenenti sostanze pericolose"],["10 10 10","polveri di gas di combustione, diverse da quelle di cui alla voce 10 10 09"],["10 10 11*","altri particolati contenenti sostanze pericolose"],["10 10 12","altri particolati diversi da quelli di cui alla voce 10 10 11"],["10 10 13*","scarti di leganti contenenti sostanze pericolose"],["10 10 14","scarti di leganti diversi da quelli di cui alla voce 10 10 13"],["10 10 15*","scarti di rilevatori di crepe, contenenti sostanze pericolose"],["10 10 16","scarti di rilevatori di crepe, diversi da quelli di cui alla voce 10 10 15"],["10 10 99","rifiuti non specificati altrimenti"],["10 11","rifiuti della fabbricazione del vetro e di prodotti di vetro"],["10 11 03","scarti di materiali in fibra a base di vetro"],["10 11 05","particolato e polveri"],["10 11 09*","residui di miscela di preparazione non sottoposti a trattamento termico, contenenti sostanze pericolose"],["10 11 10","residui di miscela di preparazione non sottoposti a trattamento termico, diversi da quelle di cui alla voce 10 11 09"],["10 11 11*","rifiuti di vetro in forma di particolato e polveri di vetro contenenti metalli pesanti (provenienti ad esempio da tubi a raggi catodici)"],["10 11 12","rifiuti di vetro diversi da quelli di cui alla voce 10 11 11"],["10 11 13*","fanghi provenienti dalla lucidatura e dalla macinazione del vetro, contenenti sostanze pericolose"],["10 11 14","fanghi provenienti dalla lucidatura e dalla macinazione del vetro, diversi da quelli di cui alla voce 10 11 13"],["10 11 15*","rifiuti solidi prodotti dal trattamento di fumi, contenenti sostanze pericolose"],["10 11 16","rifiuti solidi prodotti dal trattamento di fumi, diversi da quelli di cui alla voce 10 11 15"],["10 11 17*","fanghi e residui di filtrazione prodotti dal trattamento dei fumi, contenenti sostanze pericolose"],["10 11 18","fanghi e residui di filtrazione prodotti dal trattamento dei fumi, diversi da quelli di cui alla voce 10 11 17"],["10 11 19*","rifiuti solidi prodotti dal trattamento in loco di effluenti, contenenti sostanze pericolose"],["10 11 20","rifiuti solidi prodotti dal trattamento in loco di effluenti, diversi da quelli di cui alla voce 10 11 19"],["10 11 99","rifiuti non specificati altrimenti"],["10 12","rifiuti della fabbricazione di prodotti di ceramica, mattoni, mattonelle e materiali da costruzione"],["10 12 01","residui di miscela di preparazione non sottoposti a trattamento termico"],["10 12 03","polveri e particolato"],["10 12 05","fanghi e residui di filtrazione prodotti dal trattamento dei fumi"],["10 12 06","stampi di scarto"],["10 12 08","scarti di ceramica, mattoni, mattonelle e materiali da costruzione (sottoposti a trattamento termico)"],["10 12 09*","rifiuti solidi prodotti dal trattamento dei fumi, contenenti sostanze pericolose"],["10 12 10","rifiuti solidi prodotti dal trattamento dei fumi, diversi da quelli di cui alla voce 10 12 09"],["10 12 11*","rifiuti delle operazioni di smaltatura, contenenti metalli pesanti"],["10 12 12","rifiuti delle operazioni di smaltatura diversi da quelli di cui alla voce 10 12 11"],["10 12 13","fanghi prodotti dal trattamento in loco degli effluenti"],["10 12 99","rifiuti non specificati altrimenti"],["10 13","rifiuti della fabbricazione di cemento, calce e gesso e manufatti di tali materiali"],["10 13 01","residui di miscela di preparazione non sottoposti a trattamento termico"],["10 13 04","rifiuti di calcinazione e di idratazione della calce"],["10 13 06","particolato e polveri (eccetto quelli delle voci 10 13 12 e 10 13 13)"],["10 13 07","fanghi e residui di filtrazione prodotti dal trattamento dei fumi"],["10 13 09*","rifiuti della fabbricazione di cemento-amianto, contenenti amianto"],["10 13 10","rifiuti della fabbricazione di cemento-amianto, diversi da quelli di cui alla voce 10 13 09"],["10 13 11","rifiuti della produzione di materiali compositi a base di cemento, diversi da quelli di cui alle voci 10 13 09 e 10 13 10"],["10 13 12*","rifiuti solidi prodotti dal trattamento dei fumi, contenenti sostanze pericolose"],["10 13 13","rifiuti solidi prodotti dal trattamento dei fumi, diversi da quelli di cui alla voce 10 13 12"],["10 13 14","rifiuti e fanghi di cemento"],["10 13 99","rifiuti non specificati altrimenti"],["10 14","rifiuti prodotti dai forni crematori"],["10 14 01*","rifiuti prodotti dalla depurazione dei fumi, contenenti mercurio"],["11 01","rifiuti prodotti dal trattamento chimico superficiale e rivestimento di metalli (ad esempio, processi galvanici, zincatura, decapaggio, pulitura elettrolitica, fosfatazione, sgrassaggio con alcali, anodizzazione)"],["11 01 05*","acidi di decappaggio"],["11 01 06*","acidi non specificati altrimenti"],["11 01 07*","basi di decappaggio"],["11 01 08*","fanghi di fosfatazione"],["11 01 09*","fanghi e residui di filtrazione, contenenti sostanze pericolose"],["11 01 10","fanghi e residui di filtrazione, diversi da quelli di cui alla voce 11 01 09"],["11 01 11*","soluzioni acquose di lavaggio, contenenti sostanze pericolose"],["11 01 12","soluzioni acquose di lavaggio, diverse da quelle di cui alla voce 10 01 11"],["11 01 13*","rifiuti di sgrassaggio contenenti sostanze pericolose"],["11 01 14","rifiuti di sgrassaggio diversi da quelli di cui alla voce 11 01 13"],["11 01 15*","eluati e fanghi di sistemi a membrana o sistemi a scambio ionico, contenenti sostanze pericolose"],["11 01 16*","resine a scambio ionico saturate o esaurite"],["11 01 98*","altri rifiuti contenenti sostanze pericolose"],["11 01 99","rifiuti non specificati altrimenti"],["11 02","rifiuti prodotti dalla lavorazione idrometallurgica di metalli non ferrosi"],["11 02 02*","fanghi della lavorazione idrometallurgica dello zinco (compresi jarosite, goethite)"],["11 02 03","rifiuti della produzione di anodi per processi elettrolitici acquosi"],["11 02 05*","rifiuti della lavorazione idrometallurgica del rame, contenenti sostanze pericolose"],["11 02 06","rifiuti della lavorazione idrometallurgica del rame, diversi da quelli della voce 11 02 05"],["11 02 07*","altri rifiuti contenenti sostanze pericolose"],["11 02 99","rifiuti non specificati altrimenti"],["11 03","rifiuti solidi e fanghi prodotti da processi di rinvenimento"],["11 03 01*","rifiuti contenenti cianuro"],["11 03 02*","altri rifiuti"],["11 05","rifiuti prodotti da processi di galvanizzazione a caldo"],["11 05 01","zinco solido"],["11 05 02","ceneri di zinco"],["11 05 03*","rifiuti solidi prodotti dal trattamento dei fumi"],["11 05 04*","fondente esaurito"],["11 05 99","rifiuti non specificati altrimenti"],["12 01","rifiuti prodotti dalla lavorazione e dal trattamento fisico e meccanico superficiale di metalli e plastica"],["12 01 01","limatura e trucioli di metalli ferrosi"],["12 01 02","polveri e particolato di metalli ferrosi"],["12 01 03","limatura, scaglie e polveri di metalli non ferrosi"],["12 01 04","polveri e particolato di metalli non ferrosi"],["12 01 05","limatura e trucioli di materiali plastici"],["12 01 06*","oli minerali per macchinari, contenenti alogeni (eccetto emulsioni e soluzioni)"],["12 01 07*","oli minerali per macchinari, non contenenti alogeni (eccetto emulsioni e soluzioni)"],["12 01 08*","emulsioni e soluzioni per macchinari, contenenti alogeni"],["12 01 09*","emulsioni e soluzioni per macchinari, non contenenti alogeni"],["12 01 10*","oli sintetici per macchinari"],["12 01 12*","cere e grassi esauriti"],["12 01 13","rifiuti di saldatura"],["12 01 14*","fanghi di lavorazione, contenenti sostanze pericolose"],["12 01 15","fanghi di lavorazione, diversi da quelli di cui alla voce 12 01 14"],["12 01 16*","residui di materiale di sabbiatura, contenente sostanze pericolose"],["12 01 17","residui di materiale di sabbiatura, diversi da quelli di cui alla voce 12 01 16"],["12 01 18*","fanghi metallici (fanghi di rettifica, affilatura e lappatura) contenenti oli"],["12 01 19*","oli per macchinari, facilmente biodegradabili"],["12 01 20*","corpi d'utensile e materiali di rettifica esauriti, contenenti sostanze pericolose"],["12 01 21","corpi d'utensile e materiali di rettifica esauriti, diversi da quelli di cui alla voce 12 01 20"],["12 01 99","rifiuti non specificati altrimenti"],["12 03","rifiuti prodotti da processi di sgrassatura ad acqua e a vapore (tranne 11)"],["12 03 01*","soluzioni acquose di lavaggio"],["12 03 02*","rifiuti prodotti da processi di sgrassatura a vapore"],["13 01","scarti di oli per circuiti idraulici"],["13 01 01*","oli per circuiti idraulici contenenti PCB"],["13 01 04*","emulsioni clorurate"],["13 01 05*","emulsioni non clorurate"],["13 01 09*","oli minerali per circuiti idraulici, clorurati"],["13 01 10*","oli minerali per circuiti idraulici, non clorurati"],["13 01 11*","oli sintetici per circuiti idraulici"],["13 01 12*","oli per circuiti idraulici, facilmente biodegradabili"],["13 01 13*","altri oli per circuiti idraulici"],["13 02","scarti di olio motore, olio per ingranaggi e oli lubrificanti"],["13 02 04*","oli minerali per motori, ingranaggi e lubrificazione, clorurati"],["13 02 05*","oli minerali per motori, ingranaggi e lubrificazione, non clorurati"],["13 02 06*","oli sintetici per motori, ingranaggi e lubrificazione"],["13 02 07*","oli per motori, ingranaggi e lubrificazione, facilmente biodegradabili"],["13 02 08*","altri oli per motori, ingranaggi e lubrificazione"],["13 03","oli isolanti e oli termoconduttori usati"],["13 03 01*","oli isolanti o oli termoconduttori, contenenti PCB"],["13 03 06*","oli minerali isolanti e termoconduttori clorurati, diversi da quelli di cui alla voce 13 03 01"],["13 03 07*","oli minerali isolanti e termoconduttori non clorurati"],["13 03 08*","oli sintetici isolanti e oli termoconduttori"],["13 03 09*","oli isolanti e oli termoconduttori, facilmente biodegradabili"],["13 03 10*","altri oli isolanti e oli termoconduttori"],["13 04","oli di sentina"],["13 04 01*","oli di sentina da navigazione interna"],["13 04 02*","oli di sentina derivanti dalle fognature dei moli"],["13 04 03*","oli di sentina da un altro tipo di navigazione"],["13 05","prodotti di separazione olio/acqua"],["13 05 01*","rifiuti solidi delle camere a sabbia e di prodotti di separazione olio/acqua"],["13 05 02*","fanghi di prodotti di separazione olio/acqua"],["13 05 03*","fanghi da collettori"],["13 05 06*","oli prodotti da separatori olio/acqua"],["13 05 07*","acque oleose prodotte da separatori olio/acqua"],["13 05 08*","miscugli di rifiuti prodotti da camere a sabbia e separatori olio/acqua"],["13 07","residui di combustibili liquidi"],["13 07 01*","olio combustibile e carburante diesel"],["13 07 02*","Benzina"],["13 07 03*","altri carburanti (comprese le miscele)"],["13 08","rifiuti di oli non specificati altrimenti"],["13 08 01*","fanghi e emulsioni da processi di dissalazione"],["13 08 02*","altre emulsioni"],["13 08 99*","rifiuti non specificati altrimenti"],["14 06","rifiuti di solventi organici, refrigeranti e propellenti di schiuma/aerosol"],["14 06 01*","clorofluorocarburi, HCFC, HFC"],["14 06 02*","altri solventi e miscele di solventi alogenati"],["14 06 03*","altri solventi e miscele di solventi"],["14 06 04*","fanghi o rifiuti solidi, contenenti solventi alogenati"],["14 06 05*","fanghi o rifiuti solidi, contenenti altri solventi"],["15 01","imballaggi (compresi i rifiuti urbani di imballaggio oggetto di raccolta differenziata)"],["15 01 01","imballaggi di carta e cartone"],["15 01 02","imballaggi di plastica"],["15 01 03","imballaggi in legno"],["15 01 04","imballaggi metallici"],["15 01 05","imballaggi compositi"],["15 01 06","imballaggi in materiali misti"],["15 01 07","imballaggi di vetro"],["15 01 09","imballaggi in materia tessile"],["15 01 10*","imballaggi contenenti residui di sostanze pericolose o contaminati da tali sostanze"],["15 01 11*","imballaggi metallici contenenti matrici solide porose pericolose (ad esempio amianto), compresi contenitori a pressione vuoti"],["15 02","assorbenti, materiali filtranti, stracci e indumenti protettivi"],["15 02 02*","assorbenti, materiali filtranti (inclusi filtri dell'olio non specificati altrimenti), stracci e indumenti protettivi, contaminati da sostanze pericolose"],["15 02 03","assorbenti, materiali filtranti, stracci e indumenti protettivi, diversi da quelli di cui alla voce 15 02 02"],["16 01","veicoli fuori uso appartenenti a diversi modi di trasporto (comprese le macchine mobili non stradali) e rifiuti prodotti dallo smantellamento di veicoli fuori uso e dalla manutenzione di veicoli (tranne 13, 14, 16 06 e 16 08)"],["16 01 03","pneumatici fuori uso"],["16 01 04*","veicoli fuori uso"],["16 01 06","veicoli fuori uso, non contenenti liquidi né altre componenti pericolose"],["16 01 07*","filtri dell'olio"],["16 01 08*","componenti contenenti mercurio"],["16 01 09*","componenti contenenti PCB"],["16 01 10*","componenti esplosivi (ad esempio «air bag»)"],["16 01 11*","pastiglie per freni, contenenti amianto"],["16 01 12","pastiglie per freni, diverse da quelle di cui alla voce 16 01 11"],["16 01 13*","liquidi per freni"],["16 01 14*","liquidi antigelo contenenti sostanze pericolose"],["16 01 15","liquidi antigelo diversi da quelli di cui alla voce 16 01 14"],["16 01 16","serbatoi per gas liquefatto"],["16 01 17","metalli ferrosi"],["16 01 18","metalli non ferrosi"],["16 01 19","Plastica"],["16 01 20","Vetro"],["16 01 21*","componenti pericolosi diversi da quelli di cui alle voci da 16 01 07 a 16 01 11, 16 01 13 e 16 01 14"],["16 01 22","componenti non specificati altrimenti"],["16 01 99","rifiuti non specificati altrimenti"],["16 02","rifiuti provenienti da apparecchiature elettriche ed elettroniche"],["16 02 09*","trasformatori e condensatori contenenti PCB"],["16 02 10*","apparecchiature fuori uso contenenti PCB o da essi contaminate, diverse da quelle di cui alla voce 16 02 09"],["16 02 11*","apparecchiature fuori uso, contenenti clorofluorocarburi, HCFC, HFC"],["16 02 12*","apparecchiature fuori uso, contenenti amianto in fibre libere"],["16 02 13*","apparecchiature fuori uso, contenenti componenti pericolosi (1) diversi da quelli di cui alle voci da 16 02 09 a 16 02 12"],["16 02 14","apparecchiature fuori uso, diverse da quelle di cui alle voci da 16 02 09 a 16 02 13"],["16 02 15*","componenti pericolosi rimossi da apparecchiature fuori uso"],["16 02 16","componenti rimossi da apparecchiature fuori uso, diversi da quelli di cui alla voce 16 02 15"],["16 03","prodotti fuori specifica e prodotti inutilizzati"],["16 03 03*","rifiuti inorganici contenenti sostanze pericolose"],["16 03 04","rifiuti inorganici, diversi da quelli di cui alla voce 16 03 03"],["16 03 05*","rifiuti organici, contenenti sostanze pericolose"],["16 03 06","rifiuti organici diversi da quelli di cui alla voce 16 03 05"],["16 03 07*","mercurio metallico"],["16 04","esplosivi di scarto"],["16 04 01*","munizioni di scarto"],["16 04 02*","fuochi artificiali di scarto"],["16 04 03*","altri esplosivi di scarto"],["16 05","gas in contenitori a pressione e sostanze chimiche di scarto"],["16 05 04*","gas in contenitori a pressione (compresi gli halon), contenenti sostanze pericolose"],["16 05 05","gas in contenitori a pressione, diversi da quelli di cui alla voce 16 05 04"],["16 05 06*","sostanze chimiche di laboratorio contenenti o costituite da sostanze pericolose, comprese le miscele di sostanze chimiche di laboratorio"],["16 05 07*","sostanze chimiche inorganiche di scarto contenenti o costituite da sostanze pericolose"],["16 05 08*","sostanze chimiche organiche di scarto contenenti o costituite da sostanze pericolose"],["16 05 09","sostanze chimiche di scarto diverse da quelle di cui alle voci 16 05 06, 16 05 07 e 16 05 08"],["16 06","batterie ed accumulatori"],["16 06 01*","batterie al piombo"],["16 06 02*","batterie al nichel-cadmio"],["16 06 03*","batterie contenenti mercurio"],["16 06 04","batterie alcaline (tranne 16 06 03)"],["16 06 05","altre batterie e accumulatori"],["16 06 06*","elettroliti di batterie e accumulatori, oggetto di raccolta differenziata"],["16 07","rifiuti della pulizia di serbatoi e di fusti per trasporto e stoccaggio (tranne 05 e 13)"],["16 07 08*","rifiuti contenenti oli"],["16 07 09*","rifiuti contenenti altre sostanze pericolose"],["16 07 99","rifiuti non specificati altrimenti"],["16 08","catalizzatori esauriti"],["16 08 01","catalizzatori esauriti contenenti oro, argento, renio, rodio, palladio, iridio o platino (tranne 16 08 07)"],["16 08 02*","catalizzatori esauriti contenenti metalli di transizione pericolosi o composti di metalli di transizione pericolosi"],["16 08 03","catalizzatori esauriti contenenti metalli di transizione o composti di metalli di transizione, non specificati altrimenti"],["16 08 04","catalizzatori esauriti da cracking catalitico a letto fluido (tranne 16 08 07)"],["16 08 05*","catalizzatori esauriti contenenti acido fosforico"],["16 08 06*","liquidi esauriti usati come catalizzatori"],["16 08 07*","catalizzatori esauriti contaminati da sostanze pericolose"],["16 09","sostanze ossidanti"],["16 09 01*","permanganati, ad esempio permanganato di potassio"],["16 09 02*","cromati, ad esempio cromato di potassio, dicromato di potassio o di sodio"],["16 09 03*","perossidi, ad esempio perossido d'idrogeno"],["16 09 04*","sostanze ossidanti non specificate altrimenti"],["16 10","rifiuti liquidi acquosi destinati ad essere trattati fuori sito"],["16 10 01*","rifiuti liquidi acquosi, contenenti sostanze pericolose"],["16 10 02","rifiuti liquidi acquosi, diversi da quelli di cui alla voce 16 10 01"],["16 10 03*","concentrati acquosi, contenenti sostanze pericolose"],["16 10 04","concentrati acquosi, diversi da quelli di cui alla voce 16 10 03"],["16 11","rifiuti di rivestimenti e materiali refrattari"],["16 11 01*","rivestimenti e materiali refrattari a base di carbone provenienti da processi metallurgici, contenenti sostanze pericolose"],["16 11 02","rivestimenti e materiali refrattari a base di carbone provenienti dalle lavorazioni metallurgiche, diversi da quelli di cui alla voce 16 11 01"],["16 11 03*","altri rivestimenti e materiali refrattari provenienti da processi metallurgici, contenenti sostanze pericolose"],["16 11 04","altri rivestimenti e materiali refrattari provenienti da processi metallurgici, diversi da quelli di cui alla voce 16 11 03"],["16 11 05*","rivestimenti e materiali refrattari provenienti da lavorazioni non metallurgiche, contenenti sostanze pericolose"],["16 11 06","rivestimenti e materiali refrattari provenienti da lavorazioni non metallurgiche, diversi da quelli di cui alla voce 16 11 05"],["17 01","cemento, mattoni, mattonelle e ceramiche"],["17 01 01","Cemento"],["17 01 02","Mattoni"],["17 01 03","mattonelle e ceramiche"],["17 01 06*","miscugli o frazioni separate di cemento, mattoni, mattonelle e ceramiche, contenenti sostanze pericolose"],["17 01 07","miscugli di cemento, mattoni, mattonelle e ceramiche, diversi da quelli di cui alla voce 17 01 06"],["17 02","legno, vetro e plastica"],["17 02 01","Legno"],["17 02 02","Vetro"],["17 02 03","Plastica"],["17 02 04*","vetro, plastica e legno contenenti sostanze pericolose o da esse contaminati"],["17 03","miscele bituminose, catrame di carbone e prodotti contenenti catrame"],["17 03 01*","miscele bituminose contenenti catrame di carbone"],["17 03 02","miscele bituminose diverse da quelle di cui alla voce 17 03 01"],["17 03 03*","catrame di carbone e prodotti contenenti catrame"],["17 04","metalli (incluse le loro leghe)"],["17 04 01","rame, bronzo, ottone"],["17 04 02","Alluminio"],["17 04 03","Piombo"],["17 04 04","Zinco"],["17 04 05","ferro e acciaio"],["17 04 06","Stagno"],["17 04 07","metalli misti"],["17 04 09*","rifiuti metallici contaminati da sostanze pericolose"],["17 04 10*","cavi impregnati di olio, di catrame di carbone o di altre sostanze pericolose"],["17 04 11","cavi, diversi da quelli di cui alla voce 17 04 10"],["17 05","terra (compresa quella escavata proveniente da siti contaminati), rocce e materiale di dragaggio"],["17 05 03*","terra e rocce, contenenti sostanze pericolose"],["17 05 04","terra e rocce, diverse da quelle di cui alla voce 17 05 03"],["17 05 05*","materiale di dragaggio contenente sostanze pericolose"],["17 05 06","materiale di dragaggio, diverso da quello di cui alla voce 17 05 05"],["17 05 07*","pietrisco per massicciate ferroviarie, contenente sostanze pericolose"],["17 05 08","pietrisco per massicciate ferroviarie, diverso da quello di cui alla voce 17 05 07"],["17 06","materiali isolanti e materiali da costruzione contenenti amianto"],["17 06 01*","materiali isolanti, contenenti amianto"],["17 06 03*","altri materiali isolanti contenenti o costituiti da sostanze pericolose"],["17 06 04","materiali isolanti, diversi da quelli di cui alle voci 17 06 01 e 17 06 03"],["17 06 05*","materiali da costruzione contenenti amianto"],["17 08","materiali da costruzione a base di gesso"],["17 08 01*","materiali da costruzione a base di gesso contaminati da sostanze pericolose"],["17 08 02","materiali da costruzione a base di gesso, diversi da quelli di cui alla voce 17 08 01"],["17 09","altri rifiuti dell'attività di costruzione e demolizione"],["17 09 01*","rifiuti dell'attività di costruzione e demolizione, contenenti mercurio"],["17 09 02*","rifiuti dell'attività di costruzione e demolizione, contenenti PCB (ad esempio sigillanti contenenti PCB, pavimentazioni a base di resina contenenti PCB, elementi stagni in vetro contenenti PCB, condensatori contenenti PCB)"],["17 09 03*","altri rifiuti dell'attività di costruzione e demolizione (compresi rifiuti misti) contenenti sostanze pericolose"],["17 09 04","rifiuti misti dell'attività di costruzione e demolizione, diversi da quelli di cui alle voci 17 09 01, 17 09 02 e 17 09 03"],["18 01","rifiuti dei reparti di maternità e rifiuti legati a diagnosi, trattamento e prevenzione delle malattie negli esseri umani"],["18 01 01","oggetti da taglio (eccetto 18 01 03)"],["18 01 02","parti anatomiche ed organi incluse le sacche per il plasma e le riserve di sangue (tranne 18 01 03)"],["18 01 03*","rifiuti che devono essere raccolti e smaltiti applicando precauzioni particolari per evitare infezioni"],["18 01 04","rifiuti che non devono essere raccolti e smaltiti applicando precauzioni particolari per evitare infezioni (es. bende, ingessature, lenzuola, indumenti monouso, assorbenti igienici)"],["18 01 06*","sostanze chimiche pericolose o contenenti sostanze pericolose"],["18 01 07","sostanze chimiche diverse da quelle di cui alla voce 18 01 06"],["18 01 08*","medicinali citotossici e citostatici"],["18 01 09","medicinali diversi da quelli di cui alla voce 18 01 08"],["18 01 10*","rifiuti di amalgama prodotti da interventi odontoiatrici"],["18 02","rifiuti legati alle attività di ricerca, diagnosi, trattamento e prevenzione delle malattie degli animali"],["18 02 01","oggetti da taglio (eccetto 18 02 02)"],["18 02 02*","rifiuti che devono essere raccolti e smaltiti applicando precauzioni particolari per evitare infezioni"],["18 02 03","rifiuti che non devono essere raccolti e smaltiti applicando precauzioni particolari per evitare infezioni"],["18 02 05*","sostanze chimiche pericolose o contenenti sostanze pericolose"],["18 02 06","sostanze chimiche diverse da quelle di cui alla voce 18 02 05"],["18 02 07*","medicinali citotossici e citostatici"],["18 02 08","medicinali diversi da quelli di cui alla voce 18 02 07"],["19 01","rifiuti da incenerimento o pirolisi di rifiuti"],["19 01 02","materiali ferrosi estratti da ceneri pesanti"],["19 01 05*","residui di filtrazione prodotti dal trattamento dei fumi"],["19 01 06*","rifiuti liquidi acquosi prodotti dal trattamento dei fumi e altri rifiuti liquidi acquosi"],["19 01 07*","rifiuti solidi prodotti dal trattamento dei fumi"],["19 01 10*","carbone attivo esaurito prodotto dal trattamento dei fumi"],["19 01 11*","ceneri pesanti e scorie, contenenti sostanze pericolose"],["19 01 12","ceneri pesanti e scorie, diverse da quelle di cui alla voce 19 01 11"],["19 01 13*","ceneri leggere, contenenti sostanze pericolose"],["19 01 14","ceneri leggere, diverse da quelle di cui alla voce 19 01 13"],["19 01 15*","polveri di caldaia, contenenti sostanze pericolose"],["19 01 16","polveri di caldaia, diverse da quelle di cui alla voce 19 01 15"],["19 01 17*","rifiuti della pirolisi, contenenti sostanze pericolose"],["19 01 18","rifiuti della pirolisi, diversi da quelli di cui alla voce 19 01 17"],["19 01 19","sabbie dei reattori a letto fluidizzato"],["19 01 99","rifiuti non specificati altrimenti"],["19 02","rifiuti prodotti da trattamenti chimico-fisici di rifiuti (comprese decromatazione, decianizzazione, neutralizzazione)"],["19 02 03","rifiuti premiscelati composti esclusivamente da rifiuti non pericolosi"],["19 02 04*","Rifiuti premiscelati contenenti almeno un rifiuto pericoloso"],["19 02 05*","fanghi prodotti da trattamenti chimico-fisici, contenenti sostanze pericolose"],["19 02 06","fanghi prodotti da trattamenti chimico-fisici, diversi da quelli di cui alla voce 19 02 05"],["19 02 07*","oli e concentrati prodotti da processi di separazione"],["19 02 08*","rifiuti combustibili liquidi, contenenti sostanze pericolose"],["19 02 09*","rifiuti combustibili solidi, contenenti sostanze pericolose"],["19 02 10","rifiuti combustibili, diversi da quelli di cui alle voci 19 02 08 e 19 02 09"],["19 02 11*","altri rifiuti contenenti sostanze pericolose"],["19 02 99","rifiuti non specificati altrimenti"],["19 03","rifiuti stabilizzati/solidificati"],["19 03 04*","rifiuti contrassegnati come pericolosi, parzialmente stabilizzati diversi da quelli di cui al punto 19 03 08"],["19 03 05","rifiuti stabilizzati diversi da quelli di cui alla voce 19 03 04"],["19 03 06*","rifiuti contrassegnati come pericolosi, solidificati"],["19 03 07","rifiuti solidificati diversi da quelli di cui alla voce 19 03 06"],["19 03 08*","mercurio parzialmente stabilizzato"],["19 04","rifiuti vetrificati e rifiuti di vetrificazione"],["19 04 01","rifiuti vetrificati"],["19 04 02*","ceneri leggere ed altri rifiuti dal trattamento dei fumi"],["19 04 03*","fase solida non vetrificata"],["19 04 04","rifiuti liquidi acquosi prodotti dalla tempra di rifiuti vetrificati"],["19 05","rifiuti prodotti dal trattamento aerobico di rifiuti solidi"],["19 05 01","parte di rifiuti urbani e simili non compostata"],["19 05 02","parte di rifiuti animali e vegetali non compostata"],["19 05 03","compost fuori specifica"],["19 05 99","rifiuti non specificati altrimenti"],["19 06","rifiuti prodotti dal trattamento anaerobico di rifiuti"],["19 06 03","liquidi prodotti dal trattamento anaerobico di rifiuti urbani"],["19 06 04","digestato prodotto dal trattamento anaerobico di rifiuti urbani"],["19 06 05","liquidi prodotti dal trattamento anaerobico di rifiuti di origine animale o vegetale"],["19 06 06","digestato prodotto dal trattamento anaerobico di rifiuti di origine animale o vegetale"],["19 06 99","rifiuti non specificati altrimenti"],["19 07","percolato di discarica"],["19 07 02*","percolato di discarica, contenente sostanze pericolose"],["19 07 03","percolato di discarica, diverso da quello di cui alla voce 19 07 02"],["19 08","rifiuti prodotti dagli impianti per il trattamento delle acque reflue, non specificati altrimenti"],["19 08 01","Residui di vagliatura"],["19 08 02","rifiuti da dissabbiamento"],["19 08 05","fanghi prodotti dal trattamento delle acque reflue urbane"],["19 08 06*","resine a scambio ionico saturate o esaurite"],["19 08 07*","soluzioni e fanghi di rigenerazione degli scambiatori di ioni"],["19 08 08*","rifiuti prodotti da sistemi a membrana, contenenti sostanze pericolose"],["19 08 09","miscele di oli e grassi prodotte dalla separazione olio/acqua, contenenti esclusivamente oli e grassi commestibili"],["19 08 10*","miscele di oli e grassi prodotte dalla separazione olio/acqua, diverse da quelle di cui alla voce 19 08 09"],["19 08 11*","fanghi prodotti dal trattamento biologico di acque reflue industriali, contenenti sostanze pericolose"],["19 08 12","fanghi prodotti dal trattamento biologico di acque reflue industriali, diversi da quelli di cui alla voce 19 08 11"],["19 08 13*","fanghi contenenti sostanze pericolose prodotti da altri trattamenti di acque reflue industriali"],["19 08 14","fanghi prodotti da altri trattamenti di acque reflue industriali, diversi da quelli di cui alla voce 19 08 13"],["19 08 99","rifiuti non specificati altrimenti"],["19 09","rifiuti prodotti dalla potabilizzazione dell'acqua o dalla sua preparazione per uso industriale"],["19 09 01","rifiuti solidi prodotti dai processi di filtrazione e vaglio primari"],["19 09 02","fanghi prodotti dai processi di chiarificazione dell'acqua"],["19 09 03","fanghi prodotti dai processi di decarbonatazione"],["19 09 04","carbone attivo esaurito"],["19 09 05","resine a scambio ionico saturate o esaurite"],["19 09 06","soluzioni e fanghi di rigenerazione delle resine a scambio ionico"],["19 09 99","rifiuti non specificati altrimenti"],["19 10","rifiuti prodotti da operazioni di frantumazione di rifiuti contenenti metallo"],["19 10 01","rifiuti di ferro e acciaio"],["19 10 02","rifiuti di metalli non ferrosi"],["19 10 03*","fluff - frazione leggera e polveri, contenenti sostanze pericolose"],["19 10 04","fluff - frazione leggera e polveri, diverse da quelle di cui alla voce 19 10 03"],["19 10 05*","altre frazioni, contenenti sostanze pericolose"],["19 10 06","altre frazioni, diverse da quelle di cui alla voce 19 10 05"],["19 11","rifiuti prodotti dalla rigenerazione degli oli"],["19 11 01*","filtri di argilla esauriti"],["19 11 02*","catrami acidi"],["19 11 03*","rifiuti liquidi acquosi"],["19 11 04*","rifiuti prodotti dalla purificazione di carburanti mediante basi"],["19 11 05*","fanghi prodotti dal trattamento in loco di effluenti, contenenti sostanze pericolose"],["19 11 06","fanghi prodotti dal trattamento in loco di effluenti, diversi da quelli di cui alla voce 19 11 05"],["19 11 07*","rifiuti prodotti dalla depurazione di fumi"],["19 11 99","rifiuti non specificati altrimenti"],["19 12","rifiuti prodotti dal trattamento meccanico di rifiuti (ad esempio selezione, triturazione, compattazione, riduzione in pellet) non specificati altrimenti"],["19 12 01","carta e cartone"],["19 12 02","metalli ferrosi"],["19 12 03","metalli non ferrosi"],["19 12 04","plastica e gomma"],["19 12 05","Vetro"],["19 12 06*","legno, contenente sostanze pericolose"],["19 12 07","legno diverso da quello di cui alla voce 19 12 06"],["19 12 08","Prodotti tessili"],["19 12 09","minerali (ad esempio sabbia, rocce)"],["19 12 10","rifiuti combustibili (combustibile da rifiuti)"],["19 12 11*","altri rifiuti (compresi materiali misti) prodotti dal trattamento meccanico di rifiuti, contenenti sostanze pericolose"],["19 12 12","altri rifiuti (compresi materiali misti) prodotti dal trattamento meccanico di rifiuti, diversi da quelli di cui alla voce 19 12 11"],["19 13","rifiuti prodotti dalle operazioni di bonifica di terreni e risanamento delle acque di falda"],["19 13 01*","rifiuti solidi prodotti da operazioni di bonifica di terreni, contenenti sostanze pericolose"],["19 13 02","rifiuti solidi prodotti da operazioni di bonifica di terreni, diversi da quelli di cui alla voce 19 13 01"],["19 13 03*","fanghi prodotti dalle operazioni di bonifica di terreni, contenenti sostanze pericolose"],["19 13 04","fanghi prodotti dalle operazioni di bonifica di terreni, diversi da quelli di cui alla voce 19 13 03"],["19 13 05*","fanghi prodotti dalle operazioni di risanamento delle acque di falda, contenenti sostanze pericolose"],["19 13 06","fanghi prodotti dalle operazioni di risanamento delle acque di falda, diversi da quelli di cui alla voce 19 13 05"],["19 13 07*","rifiuti liquidi acquosi e rifiuti concentrati acquosi prodotti dalle operazioni di risanamento delle acque di falda, contenenti sostanze pericolose"],["19 13 08","rifiuti liquidi acquosi e rifiuti concentrati acquosi prodotti dalle operazioni di risanamento delle acque di falda, diversi da quelli di cui alla voce 19 13 07"],["20 01","frazioni oggetto di raccolta differenziata (tranne 15 01)"],["20 01 01","carta e cartone"],["20 01 02","Vetro"],["20 01 08","rifiuti biodegradabili di cucine e mense"],["20 01 10","Abbigliamento"],["20 01 11","Prodotti tessili"],["20 01 13*","Solventi"],["20 01 14*","Acidi"],["20 01 15*","Sostanze alcaline"],["20 01 17*","Prodotti fotochimici"],["20 01 19*","Pesticidi"],["20 01 21*","tubi fluorescenti ed altri rifiuti contenenti mercurio"],["20 01 23*","apparecchiature fuori uso contenenti clorofluorocarburi"],["20 01 25","oli e grassi commestibili"],["20 01 26*","oli e grassi diversi da quelli di cui alla voce 20 01 25"],["20 01 27*","vernici, inchiostri, adesivi e resine contenenti sostanze pericolose"],["20 01 28","vernici, inchiostri, adesivi e resine, diversi da quelli di cui alla voce 20 01 27"],["20 01 29*","detergenti, contenenti sostanze pericolose"],["20 01 30","detergenti diversi da quelli di cui alla voce 20 01 29"],["20 01 31*","medicinali citotossici e citostatici"],["20 01 32","medicinali diversi da quelli di cui alla voce 20 01 31"],["20 01 33*","batterie e accumulatori di cui alle voci 16 06 01, 16 06 02 e 16 06 03, nonché batterie e accumulatori non suddivisi contenenti tali batterie"],["20 01 34","batterie e accumulatori, diversi da quelli di cui alla voce 20 01 33"],["20 01 35*","apparecchiature elettriche ed elettroniche fuori uso, diverse da quelle di cui alla voce 20 01 21 e 20 01 23, contenenti componenti pericolosi (1)"],["20 01 36","apparecchiature elettriche ed elettroniche fuori uso, diverse da quelle di cui alle voci 20 01 21, 20 01 23 e 20 01 35"],["20 01 37*","legno contenente sostanze pericolose"],["20 01 38","legno diverso da quello di cui alla voce 20 01 37"],["20 01 39","Plastica"],["20 01 40","Metalli"],["20 01 41","rifiuti prodotti dalla pulizia di camini e ciminiere"],["20 01 99","altre frazioni non specificate altrimenti"],["20 02","rifiuti di giardini e parchi (inclusi i rifiuti provenienti da cimiteri)"],["20 02 01","rifiuti biodegradabili"],["20 02 02","terra e roccia"],["20 02 03","altri rifiuti non biodegradabili"],["20 03","altri rifiuti urbani"],["20 03 01","rifiuti urbani non differenziati"],["20 03 02","rifiuti dei mercati"],["20 03 03","residui della pulizia stradale"],["20 03 04","fanghi delle fosse settiche"],["20 03 06","rifiuti della pulizia delle fognature"],["20 03 07","rifiuti ingombranti"],["20 03 99","rifiuti urbani non specificati altrimenti"]]};
+// Catalogo EER/CER e assistente di ricerca — prototipo «Rifiuti Hub · Trasporti», OMO Agency 20/11/2026.
+// Fonte dati: elenco_eer.json (Decisione 2000/532/CE consolidata IT 01.06.2015, Ufficio pubblicazioni UE).
+// Funzioni pure. La ricerca è per parole chiave e sinonimi del cantiere (deterministica): nella versione completa
+// la proposta arriva da un modello IA su descrizione e foto, ma la scelta del codice resta del produttore.
+
+const pulisci = (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9 ]/g, " ");
+const PAROLE_VUOTE = new Set("di da del della dei delle degli il lo la le gli i un una e o ed in con per a al alla ai alle non che quelli quelle quella quello cui voce voci diversi diverse altri altre altro tali loro come ad esempio".split(" "));
+// radice grezza: toglie la vocale finale (plurali e generi: imballaggio/imballaggi, pittura/pitture)
+const radice = (w) => (w.length > 4 ? w.replace(/[aeio]$/, "") : w);
+const parole = (s) => pulisci(s).split(" ").filter((w) => w.length > 2 && !PAROLE_VUOTE.has(w)).map(radice);
+
+// Sinonimi del linguaggio di cantiere e d'officina → parole dell'elenco ufficiale. Da arricchire con il cliente.
+const SINONIMI = {
+  calcinacci: "cemento mattoni mattonelle ceramiche", macerie: "cemento mattoni mattonelle ceramiche",
+  cartongesso: "materiali costruzione base gesso", eternit: "materiali costruzione contenenti amianto",
+  amianto: "amianto", guaina: "miscele bituminose", asfalto: "miscele bituminose", catrame: "catrame carbone",
+  scavo: "terra rocce", terra: "terra rocce", terreno: "terra rocce", ferro: "ferro acciaio", rottame: "ferro acciaio",
+  rame: "rame bronzo ottone", alluminio: "alluminio", cavi: "cavi", legno: "legno", pallet: "imballaggi legno",
+  bancali: "imballaggi legno", cartone: "imballaggi carta cartone", carta: "carta cartone", plastica: "plastica",
+  nylon: "imballaggi plastica", polistirolo: "isolanti", lana: "materiali isolanti", vetro: "vetro",
+  olio: "oli minerali motori ingranaggi lubrificazione", filtri: "filtri olio", pneumatici: "pneumatici fuori uso",
+  gomme: "pneumatici fuori uso", batterie: "batterie piombo", neon: "tubi fluorescenti mercurio",
+  toner: "toner stampa", vernice: "pitture vernici", pittura: "pitture vernici", stracci: "assorbenti stracci",
+  fanghi: "fanghi", fosse: "fanghi fosse settiche", ingombranti: "rifiuti ingombranti", misti: "rifiuti misti costruzione demolizione",
+};
+
+// Indice del catalogo: voci a 6 cifre con capitolo e sottocapitolo, e collegamenti «a specchio».
+function costruisciIndice(voci) {
+  const titoli = Object.fromEntries(voci.filter(([c]) => c.replace("*", "").length < 8).map(([c, d]) => [c, d]));
+  const indice = voci
+    .filter(([c]) => c.replace("*", "").length === 8)
+    .map(([c, d]) => {
+      const etichetta = c.trim();
+      const codice = etichetta.replace(/[ *]/g, "");
+      const cap = etichetta.slice(0, 2), sotto = etichetta.slice(0, 5);
+      return {
+        codice, etichetta, pericoloso: etichetta.endsWith("*"), descrizione: d,
+        capitolo: cap, titoloCapitolo: titoli[cap] || "", sottocapitolo: sotto, titoloSottocapitolo: titoli[sotto] || "",
+        rimandi: [...d.matchAll(/\b(\d\d) (\d\d) (\d\d)\b/g)].map((m) => m[1] + m[2] + m[3]),
+        // le parti «(ad esclusione …)» e «(tranne …)» dicono cosa NON è: non contano nella ricerca
+        _parole: new Set(parole(d.replace(/\((ad esclusione|tranne)[^)]*\)/gi, ""))), _paroleSotto: new Set(parole(titoli[sotto] || "")),
+      };
+    });
+  return indice;
+}
+
+function trovaVoce(indice, codice) {
+  const c = String(codice).replace(/[ .*]/g, "");
+  return indice.find((v) => v.codice === c) || null;
+}
+
+// Voce a specchio: la stessa sostanza ha una voce pericolosa e una non pericolosa che si richiamano.
+// Restituisce le voci collegate di segno opposto (pericolosa ↔ non pericolosa).
+function vociSpecchio(indice, codice) {
+  const v = trovaVoce(indice, codice);
+  if (!v) return [];
+  const collegate = new Set(v.rimandi);
+  for (const altra of indice) if (altra.rimandi.includes(v.codice)) collegate.add(altra.codice);
+  return [...collegate]
+    .map((c) => trovaVoce(indice, c))
+    .filter((x) => x && x.pericoloso !== v.pericoloso && x.sottocapitolo === v.sottocapitolo)
+    .map((x) => x.codice)
+    .sort();
+}
+
+// Ricerca: punteggio = parole trovate nella descrizione (2 punti) o nel titolo del sottocapitolo (1 punto).
+// A parità: prima le voci non «99» (non specificati altrimenti), poi in ordine di codice.
+function cercaCER(indice, testo, max = 8) {
+  const grezze = pulisci(testo).split(" ").filter(Boolean);
+  if (/^\d{2,6}$/.test(grezze.join(""))) {
+    const pref = grezze.join("");
+    return indice.filter((v) => v.codice.startsWith(pref)).slice(0, max).map((v) => ({ codice: v.codice, punteggio: 100 }));
+  }
+  const espanse = grezze.flatMap((w) => (SINONIMI[w] ? [w, ...SINONIMI[w].split(" ")] : [w]));
+  const cercate = [...new Set(espanse.filter((w) => w.length > 2 && !PAROLE_VUOTE.has(w)).map(radice))];
+  if (!cercate.length) return [];
+  const risultati = [];
+  for (const v of indice) {
+    let punti = 0;
+    for (const w of cercate) punti += v._parole.has(w) ? 2 : v._paroleSotto.has(w) ? 1 : 0;
+    if (punti > 0) risultati.push({ codice: v.codice, punteggio: punti });
+  }
+  const resto99 = (c) => (c.endsWith("99") ? 1 : 0);
+  risultati.sort((a, b) => b.punteggio - a.punteggio || resto99(a.codice) - resto99(b.codice) || (a.codice < b.codice ? -1 : 1));
+  return risultati.slice(0, max);
+}
+
+// Consiglio dell'assistente su un codice scelto: avvisi pratici per il trasportatore.
+function consiglio(indice, codice) {
+  const v = trovaVoce(indice, codice);
+  if (!v) return { ok: false, avvisi: ["Codice non presente nell'elenco europeo dei rifiuti"] };
+  const avvisi = [];
+  const specchio = vociSpecchio(indice, codice);
+  if (specchio.length) avvisi.push(`Voce a specchio con ${specchio.map((c) => trovaVoce(indice, c).etichetta).join(", ")}: il produttore deve stabilire se il rifiuto è pericoloso (di solito con un'analisi).`);
+  if (v.pericoloso) avvisi.push("Rifiuto pericoloso: servono mezzo e iscrizione all'Albo abilitati ai pericolosi.");
+  if (v.codice.endsWith("99")) avvisi.push("Voce «non specificati altrimenti»: usarla solo se nessun altro codice descrive il rifiuto.");
+  return { ok: true, avvisi };
+}
+
+// Importa il profilo CER dei clienti da testo tipo CSV: «cliente;cer;nota» (separatore ; o ,). Prima riga di intestazione facoltativa.
+function importaProfili(testo, indice) {
+  const profili = {}, errori = [];
+  testo.split(/\r?\n/).forEach((riga, i) => {
+    if (!riga.trim()) return;
+    const [cliente, cer, nota = ""] = riga.split(/[;,]/).map((s) => s.trim());
+    if (i === 0 && /cliente/i.test(cliente) && /cer|eer|codice/i.test(cer || "")) return;
+    const v = cer && trovaVoce(indice, cer);
+    if (!cliente || !v) { errori.push({ riga: i + 1, testo: riga.trim(), motivo: !cliente ? "Cliente mancante" : `Codice ${cer || "(vuoto)"} non presente nell'elenco europeo` }); return; }
+    const asteriscoErrato = /\*\s*$/.test(cer) !== v.pericoloso;
+    (profili[cliente] ??= []).push({ codice: v.codice, etichetta: v.etichetta, pericoloso: v.pericoloso, nota, ...(asteriscoErrato ? { asteriscoErrato: true } : {}) });
+  });
+  return { profili, errori };
+}
+
+// Caricamento della lista clienti (da Excel incollato, CSV o righe già lette da un .xlsx) — OMO Agency 20/11/2026.
+// Funzioni pure. Usa catalogo.mjs (trovaVoce, cercaCER, consiglio) per controllare e proporre i codici.
+
+const norm = (s) => String(s ?? "").replace(/€/g, "euro").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]/g, "");
+
+// Nomi di colonna accettati (l'Excel del cliente può chiamarle in tanti modi).
+const COLONNE = {
+  cliente: ["cliente", "ragionesociale", "denominazione", "azienda", "nome", "produttore"],
+  piva: ["piva", "partitaiva", "partiva", "codicefiscale", "cf", "pivacf"],
+  comune: ["comune", "indirizzo", "sede", "localita", "citta", "unitalocale", "cantiere"],
+  cer: ["cer", "eer", "codicecer", "codiceeer", "codice", "codicerifiuto"],
+  rifiuto: ["rifiuto", "descrizione", "descrizionerifiuto", "materiale", "tipologia", "note", "nota"],
+  impianto: ["impianto", "destinazione", "destino", "impiantodidestino"],
+  prezzo: ["prezzo", "prezzot", "eurot", "euroatonnellata", "tariffa", "prezzotonnellata"],
+};
+
+// Testo incollato da Excel (tabulazioni) o CSV (; o ,) → righe come oggetti {intestazione: valore}.
+function leggiTabella(testo) {
+  const righe = String(testo).split(/\r?\n/).filter((r) => r.trim());
+  if (!righe.length) return [];
+  const sep = righe[0].includes("\t") ? "\t" : righe[0].includes(";") ? ";" : ",";
+  const celle = (r) => r.split(sep).map((c) => c.trim().replace(/^"(.*)"$/, "$1"));
+  const intest = celle(righe[0]);
+  return righe.slice(1).map((r) => Object.fromEntries(celle(r).map((v, i) => [intest[i] ?? `col${i + 1}`, v])));
+}
+
+// Associa le intestazioni trovate ai campi noti.
+function mappaColonne(intestazioni) {
+  const mappa = {};
+  for (const h of intestazioni) {
+    const n = norm(h);
+    for (const [campo, alias] of Object.entries(COLONNE)) if (!mappa[campo] && alias.includes(n)) mappa[campo] = h;
+  }
+  return mappa;
+}
+
+// Riga inserita a mano dal modulo → oggetto con le STESSE intestazioni della lista già caricata
+// (così l'Excel con «Ragione sociale» e le righe scritte a mano finiscono nella stessa colonna).
+const INTESTAZIONI_BASE = { cliente: "Cliente", piva: "P.IVA", comune: "Comune", cer: "CER", rifiuto: "Rifiuto", impianto: "Impianto", prezzo: "€/t" };
+function rigaDaModulo(campi, intestazioniEsistenti = []) {
+  const m = mappaColonne(intestazioniEsistenti);
+  const riga = {};
+  for (const [campo, base] of Object.entries(INTESTAZIONI_BASE)) riga[m[campo] || base] = String(campi[campo] ?? "").trim();
+  return riga;
+}
+
+// Partita IVA italiana: 11 cifre con cifra di controllo (algoritmo ufficiale).
+function pivaValida(p) {
+  const s = String(p ?? "").replace(/\s/g, "").replace(/^IT/i, "");
+  if (!/^\d{11}$/.test(s)) return false;
+  let somma = 0;
+  for (let i = 0; i < 10; i++) {
+    let d = Number(s[i]);
+    if (i % 2 === 1) { d *= 2; if (d > 9) d -= 9; }
+    somma += d;
+  }
+  return (10 - (somma % 10)) % 10 === Number(s[10]);
+}
+
+const prezzoNumero = (v) => {
+  if (v === undefined || v === null || String(v).trim() === "") return null;
+  const n = Number(String(v).replace(/[€\s]/g, "").replace(/\.(?=\d{3}\b)/g, "").replace(",", "."));
+  return Number.isFinite(n) ? n : NaN;
+};
+
+// Righe → clienti con i loro rifiuti, controlli e proposte. Una riga = un cliente + un rifiuto.
+function importaClienti(righe, indice, { cercaCER, trovaVoce, consiglio }) {
+  const intest = [...new Set(righe.flatMap((r) => Object.keys(r)))];
+  const m = mappaColonne(intest);
+  const mancanti = ["cliente"].filter((c) => !m[c]);
+  if (mancanti.length) return { colonne: m, clienti: [], errori: [{ riga: 1, motivo: "Manca la colonna con il nome del cliente" }], totali: { clienti: 0, righe: 0, daCompletare: 0 } };
+  const clienti = new Map();
+  const errori = [];
+  righe.forEach((r, i) => {
+    const riga = i + 2; // riga 1 = intestazione
+    const nome = (r[m.cliente] || "").trim();
+    if (!nome) { errori.push({ riga, motivo: "Nome del cliente vuoto" }); return; }
+    const chiave = norm(nome);
+    if (!clienti.has(chiave)) clienti.set(chiave, { nome, piva: "", pivaOk: null, comune: "", rifiuti: [] });
+    const c = clienti.get(chiave);
+    if (m.piva && r[m.piva] && !c.piva) { c.piva = r[m.piva].trim(); c.pivaOk = pivaValida(c.piva); }
+    if (m.comune && r[m.comune] && !c.comune) c.comune = r[m.comune].trim();
+    const cerTesto = m.cer ? (r[m.cer] || "").trim() : "";
+    const descr = m.rifiuto ? (r[m.rifiuto] || "").trim() : "";
+    const prezzo = m.prezzo ? prezzoNumero(r[m.prezzo]) : null;
+    const rif = { riga, cerScritto: cerTesto, descrizione: descr, impianto: m.impianto ? (r[m.impianto] || "").trim() : "", prezzo, avvisi: [], proposte: [] };
+    if (Number.isNaN(prezzo)) rif.avvisi.push(`Prezzo non leggibile: «${r[m.prezzo]}»`);
+    if (cerTesto) {
+      const v = trovaVoce(indice, cerTesto);
+      if (!v) { rif.stato = "errato"; rif.avvisi.push(`Il codice ${cerTesto} non esiste nell'elenco europeo`); }
+      else {
+        rif.codice = v.codice; rif.etichetta = v.etichetta; rif.pericoloso = v.pericoloso; rif.stato = "ok";
+        if (/\*\s*$/.test(cerTesto) !== v.pericoloso) { rif.stato = "errato"; rif.avvisi.push(v.pericoloso ? "Manca l'asterisco: il codice è pericoloso" : "Asterisco di troppo: il codice non è pericoloso"); }
+        const a = consiglio(indice, v.codice).avvisi; if (a.length) { rif.avvisi.push(...a); if (rif.stato === "ok") rif.stato = "verifica"; }
+      }
+    }
+    if (!rif.codice && descr) {
+      rif.proposte = cercaCER(indice, descr, 3).map((x) => trovaVoce(indice, x.codice).etichetta);
+      if (!cerTesto) rif.stato = rif.proposte.length ? "proposta" : "manca";
+    }
+    if (!cerTesto && !descr) { rif.stato = "manca"; rif.avvisi.push("Né codice né descrizione del rifiuto"); }
+    c.rifiuti.push(rif);
+  });
+  const lista = [...clienti.values()];
+  for (const c of lista) if (c.piva && !c.pivaOk) c.avvisoPiva = "Partita IVA non valida (11 cifre con cifra di controllo)";
+  const tutte = lista.flatMap((c) => c.rifiuti);
+  return {
+    colonne: m, clienti: lista, errori,
+    totali: { clienti: lista.length, righe: tutte.length, daCompletare: tutte.filter((x) => x.stato !== "ok").length },
+  };
+}
+
+// Preventivo veloce per un ritiro rifiuti — OMO Agency 20/11/2026. Funzioni pure.
+// Usa normalizzaCER e statoScadenza di logica.mjs (passate come dipendenze per restare testabile da sola).
+// Regole (da confermare con il cliente, sono PARAMETRI): impianto = il più conveniente tra quelli autorizzati
+// e non scaduti; mezzo = il più capiente tra quelli autorizzati al codice (pericolosi solo su mezzo abilitato);
+// viaggi = tonnellate / portata arrotondato per eccesso; trasporto = viaggi × km × 2 (andata e ritorno) × €/km;
+// ricarico sui costi; se l'impianto paga il materiale (tariffa negativa) il ricavo si scala senza ricarico.
+
+const PARAMETRI_PREVENTIVO = { euroKm: 1.5, ricaricoPct: 25, aliquotaIva: 22, validitaGiorni: 30 };
+const arrot = (x) => Math.round(x * 100) / 100;
+
+function preventivoVeloce({ righe, km, mezzi, impianti, oggi, parametri = {} }, { normalizzaCER, statoScadenza }) {
+  const p = { ...PARAMETRI_PREVENTIVO, ...parametri };
+  const out = [];
+  for (const r of righe) {
+    const cer = normalizzaCER(r.cer || "");
+    const t = Number(r.tonnellate);
+    const riga = { cer: cer ? cer.etichetta : r.cer, descrizione: r.descrizione || "", tonnellate: t, problemi: [] };
+    if (!cer) { riga.problemi.push("Codice CER mancante o non valido"); out.push(riga); continue; }
+    if (!(t > 0)) { riga.problemi.push("Quantità stimata mancante"); out.push(riga); continue; }
+    // Prezzo dell'impianto: dall'offerta ricevuta (€/t, o €/kg × 1000) se inserito, altrimenti dal listino impianti.
+    const daOfferta = Number.isFinite(Number(r.offertaEuroT)) && String(r.offertaEuroT ?? "").trim() !== "";
+    const imp = daOfferta
+      ? { nome: r.offertaImpianto || "Impianto da offerta ricevuta", tariffa: Number(r.offertaEuroT) }
+      : impianti
+          .filter((i) => i.cerAccettati.includes(cer.codice) && i.tariffe[cer.codice] !== undefined && statoScadenza(i.autorizzazioneScadenza, oggi).stato !== "scaduta")
+          .sort((a, b) => a.tariffe[cer.codice] - b.tariffe[cer.codice] || (a.id < b.id ? -1 : 1))
+          .map((i) => ({ nome: i.nome, tariffa: i.tariffe[cer.codice] }))[0];
+    const trasportoCliente = r.trasporto === "cliente";
+    const mezzo = trasportoCliente ? null : mezzi
+      .filter((m) => m.cerAutorizzati.includes(cer.codice) && (!cer.pericoloso || m.pericolosi) && statoScadenza(m.revisioneScadenza, oggi).stato !== "scaduta")
+      .sort((a, b) => b.portataKg - a.portataKg || (a.targa < b.targa ? -1 : 1))[0];
+    if (!imp) riga.problemi.push("Nessun impianto autorizzato a questo codice");
+    if (!trasportoCliente && !mezzo) riga.problemi.push("Nessun mezzo autorizzato a questo codice");
+    if (riga.problemi.length) { out.push(riga); continue; }
+    const viaggi = trasportoCliente ? 0 : Math.ceil((t * 1000) / mezzo.portataKg);
+    const costoImpianto = arrot(t * imp.tariffa);
+    const costoTrasporto = arrot(viaggi * Number(km) * 2 * p.euroKm);
+    const costi = costoTrasporto + Math.max(costoImpianto, 0);
+    const prezzo = arrot(costi * (1 + p.ricaricoPct / 100) + Math.min(costoImpianto, 0));
+    Object.assign(riga, { impianto: imp.nome, daOfferta, mezzo: trasportoCliente ? "a cura del cliente" : `${mezzo.tipo} ${mezzo.targa}`, viaggi, costoImpianto, costoTrasporto, prezzo, prezzoTonnellata: arrot(prezzo / t) });
+    out.push(riga);
+  }
+  const valide = out.filter((r) => !r.problemi.length);
+  const imponibile = arrot(valide.reduce((s, r) => s + r.prezzo, 0));
+  const costoTotale = arrot(valide.reduce((s, r) => s + r.costoImpianto + r.costoTrasporto, 0));
+  const iva = Math.round((Math.round(imponibile * 100) * p.aliquotaIva) / 100) / 100;
+  return { righe: out, imponibile, iva, totale: arrot(imponibile + iva), margine: arrot(imponibile - costoTotale), completo: valide.length === out.length, parametri: p };
+}
+
+const euroTxt = (x) => x.toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " €";
+const dataIt = (iso) => iso.split("-").reverse().join("/");
+function piuGiorni(iso, g) { const d = new Date(iso + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + g); return d.toISOString().slice(0, 10); }
+
+// Link che apre WhatsApp con il testo già scritto (il contatto lo sceglie chi invia, oppure il numero se c'è).
+function linkWhatsApp(testo, numero = "") {
+  const n = String(numero).replace(/\D/g, "").replace(/^00/, "");
+  return `https://wa.me/${n}?text=${encodeURIComponent(testo)}`;
+}
+
+// Testo pronto da mandare al cliente (WhatsApp o email). Niente costi interni, solo prezzi.
+function testoPreventivo(cliente, prev, oggi) {
+  const righe = prev.righe.filter((r) => !r.problemi.length).map((r) =>
+    `• ${r.descrizione ? r.descrizione + " " : ""}(CER ${r.cer}), circa ${String(r.tonnellate).replace(".", ",")} t: ${r.prezzo < 0 ? euroTxt(-r.prezzo) + " a vostro favore" : euroTxt(r.prezzo) + ` (${euroTxt(r.prezzoTonnellata)}/t)`} (${r.viaggi === 0 ? "trasporto a vostra cura" : r.viaggi === 1 ? "trasporto incluso, 1 viaggio" : `trasporto incluso, ${r.viaggi} viaggi`})`);
+  return [
+    `Preventivo ritiro e smaltimento rifiuti per ${cliente}`,
+    `Data ${dataIt(oggi)}, valido fino al ${dataIt(piuGiorni(oggi, prev.parametri.validitaGiorni))}`,
+    ...righe,
+    `Totale imponibile: ${euroTxt(prev.imponibile)}`,
+    `IVA ${prev.parametri.aliquotaIva}%: ${euroTxt(prev.iva)}`,
+    `Totale: ${euroTxt(prev.totale)}`,
+    `Prezzi calcolati sulle quantità stimate: in fattura vale il peso verificato all'impianto di destino.`,
+  ].join("\n");
+}
+
+(function(){
+  const $ = (id) => document.getElementById(id);
+  // punto delle migliaia anche sui numeri a 4 cifre (4.308,00 €), come nel testo del preventivo
+  const eur = (x) => x.toLocaleString("it-IT",{style:"currency",currency:"EUR",useGrouping:"always"});
+  const kg = (x) => x.toLocaleString("it-IT") + " kg";
+  const dIt = (s) => s.split("-").reverse().join("/");
+  const cliente = (id) => CLIENTI.find(c=>c.id===id)?.nome ?? id;
+  const impianto = (id) => IMPIANTI.find(i=>i.id===id)?.nome ?? id;
+  const cerTag = (c) => { const n = normalizzaCER(c); return n ? `<span class="cer${n.pericoloso?" haz":""}" title="${DESCRIZIONI_CER[n.codice]??""}">${n.etichetta}</span>` : `<span class="cer">${c}</span>`; };
+  const INDICE = costruisciIndice(ELENCO_EER.voci);
+  const ctx = { mezzi: MEZZI, impianti: IMPIANTI, clienti: CLIENTI, azienda: AZIENDA, elenco: INDICE };
+  $("oggi").textContent = dIt(OGGI);
+
+  // Codici CER: ricerca + assistente
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+  $("nVoci").textContent = INDICE.length;
+  $("nPer").textContent = INDICE.filter(v=>v.pericoloso).length;
+  ["calcinacci","cartongesso","eternit","olio motore","terra da scavo","pallet","neon","1709"].forEach(t => {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = t;
+    b.addEventListener("click", () => { $("q").value = t; cerca(); });
+    $("esempi").appendChild(b);
+  });
+  function cerca(){
+    const r = cercaCER(INDICE, $("q").value, 6);
+    $("risultati").innerHTML = r.length ? r.map(x => {
+      const v = trovaVoce(INDICE, x.codice); const c = consiglio(INDICE, x.codice);
+      return `<article class="card ${v.pericoloso ? "bloccato" : "ok"}">
+        <div class="row">${cerTag(v.etichetta)}<span class="pill ${v.pericoloso ? "bloccato" : "ok"}">${v.pericoloso ? "Pericoloso" : "Non pericoloso"}</span></div>
+        <div class="desc">${esc(v.descrizione)}</div>
+        <div class="path">${esc(v.titoloSottocapitolo)}</div>
+        ${c.avvisi.length ? `<ul class="prob">${c.avvisi.map(a=>`<li class="avviso">${esc(a)}</li>`).join("")}</ul>` : ""}
+      </article>`; }).join("") : `<p class="muted">Nessun codice trovato. Prova con un'altra parola (es. il materiale: legno, ferro, gesso, plastica).</p>`;
+  }
+  $("q").addEventListener("input", cerca);
+  cerca();
+  // Lista clienti: incolla da Excel o carica il file
+  const STATO = { ok:["ok","Codice giusto"], verifica:["attenzione","Da verificare"], proposta:["attenzione","Codice proposto"], errato:["bloccato","Da correggere"], manca:["bloccato","Manca il codice"] };
+  function mostraLista(righe){
+    const r = importaClienti(righe, INDICE, { cercaCER, trovaVoce, consiglio });
+    const conta = (s) => r.clienti.flatMap(c=>c.rifiuti).filter(x=>x.stato===s).length;
+    const riconosciute = Object.entries(r.colonne).map(([k,h])=>`${esc(h)} → ${k}`).join(" · ");
+    $("riepilogo").innerHTML = `
+      <div class="kpis" style="margin-top:14px">
+        <div class="kpi"><b>${r.totali.clienti}</b><small>clienti in anagrafica</small></div>
+        <div class="kpi"><b>${r.totali.righe}</b><small>rifiuti caricati</small></div>
+        <div class="kpi"><b class="good">${conta("ok")}</b><small>codici già giusti</small></div>
+        <div class="kpi"><b style="color:var(--warn)">${conta("proposta")+conta("verifica")}</b><small>da confermare</small></div>
+        <div class="kpi"><b class="bad">${conta("errato")+conta("manca")}</b><small>da correggere</small></div>
+      </div>
+      <p class="muted">Colonne riconosciute: ${riconosciute || "nessuna"}</p>
+      ${r.errori.length ? `<p class="bad">Righe scartate: ${r.errori.map(e=>`riga ${e.riga} (${esc(e.motivo)})`).join(" · ")}</p>` : ""}`;
+    $("profili").innerHTML = r.clienti.map(c => `
+      <div class="cliente"><h3>${esc(c.nome)}</h3>
+        <div class="row muted">${c.piva ? `<span>P.IVA ${esc(c.piva)} ${c.pivaOk ? '<span class="good">✓</span>' : `<span class="bad">${esc(c.avvisoPiva)}</span>`}</span>` : "<span>P.IVA mancante</span>"}${c.comune ? `<span>${esc(c.comune)}</span>` : ""}</div>
+        <div class="tablebox" style="margin-top:6px"><table>
+        <thead><tr><th>Riga</th><th>Rifiuto</th><th>Codice</th><th>Stato</th><th class="n">€/t</th><th>Da sapere</th></tr></thead>
+        <tbody>${c.rifiuti.map(x => `<tr>
+          <td>${x.riga}</td>
+          <td style="white-space:normal;min-width:140px">${esc(x.descrizione || "–")}</td>
+          <td>${x.etichetta ? cerTag(x.etichetta) : x.proposte.length ? x.proposte.map(cerTag).join(" ") : "–"}</td>
+          <td><span class="pill ${STATO[x.stato][0]}">${STATO[x.stato][1]}</span></td>
+          <td class="n">${x.prezzo != null && !Number.isNaN(x.prezzo) ? x.prezzo.toLocaleString("it-IT") : "–"}</td>
+          <td style="white-space:normal;min-width:240px">${[...(x.proposte.length && !x.etichetta ? ["Proposte dalla descrizione: le conferma il produttore."] : []), ...x.avvisi].map(a=>`<div class="${/non esiste|asterisco/i.test(a)?"bad":"muted"}">${esc(a)}</div>`).join("") || '<span class="good">OK</span>'}</td>
+        </tr>`).join("")}</tbody></table></div></div>`).join("");
+  }
+  let RIGHE = leggiTabella($("csv").value);
+  $("controlla").addEventListener("click", () => { RIGHE = leggiTabella($("csv").value); mostraLista(RIGHE); });
+
+  // Inserimento scrivendo: proposte CER mentre si descrive il rifiuto
+  const f = (id) => $("f-" + id);
+  function proposteModulo(){
+    const r = cercaCER(INDICE, f("rifiuto").value, 4);
+    $("f-proposte").innerHTML = r.length ? '<span class="muted">Codici possibili:</span>' : "";
+    r.forEach(x => { const v = trovaVoce(INDICE, x.codice); const b = document.createElement("button"); b.type = "button";
+      b.textContent = v.etichetta + " · " + v.descrizione.slice(0, 48) + (v.descrizione.length > 48 ? "…" : "");
+      if (f("cer").value.replace(/\s/g,"") === v.etichetta.replace(/\s/g,"")) b.className = "scelto";
+      b.addEventListener("click", () => { f("cer").value = v.etichetta; proposteModulo(); });
+      $("f-proposte").appendChild(b); });
+  }
+  f("rifiuto").addEventListener("input", proposteModulo);
+  f("piva").addEventListener("input", () => { const p = f("piva").value.trim(); f("piva-ok").textContent = !p ? "" : pivaValida(p) ? "✓ valida" : "non valida"; f("piva-ok").className = !p ? "muted" : pivaValida(p) ? "good" : "bad"; });
+  $("nuovo").addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!f("cliente").value.trim()) { f("esito").textContent = "Scrivi il nome del cliente."; return; }
+    const campi = Object.fromEntries(["cliente","piva","comune","rifiuto","cer","impianto","prezzo"].map(k => [k, f(k).value]));
+    RIGHE.push(rigaDaModulo(campi, Object.keys(RIGHE[0] || {})));
+    mostraLista(RIGHE);
+    f("esito").textContent = `${campi.cliente.trim()} aggiunto (riga ${RIGHE.length + 1}).`;
+    ["rifiuto","cer","impianto","prezzo"].forEach(k => f(k).value = ""); $("f-proposte").innerHTML = "";
+    f("rifiuto").focus();
+  });
+  $("file").addEventListener("change", async (e) => {
+    const file = e.target.files && e.target.files[0]; if (!file) return;
+    $("fileNome").textContent = file.name;
+    try {
+      if (/\.xlsx?$/i.test(file.name)) {
+        if (!window.XLSX) { $("fileNome").textContent = "Lettura Excel non disponibile: copia le righe e incollale qui sotto."; return; }
+        const wb = XLSX.read(await file.arrayBuffer(), { type: "array" });
+        const righe = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: "", raw: false });
+        RIGHE = righe.map(r => Object.fromEntries(Object.entries(r).map(([k,v]) => [k, String(v)])));
+        mostraLista(RIGHE);
+      } else {
+        const t = await file.text(); $("csv").value = t; RIGHE = leggiTabella(t); mostraLista(RIGHE);
+      }
+    } catch (err) { $("fileNome").textContent = "Non riesco a leggere il file: prova a incollare le righe qui sotto."; }
+  });
+  mostraLista(leggiTabella($("csv").value));
+
+  // Preventivo veloce
+  const num = (s) => { const n = Number(String(s).replace(",", ".")); return Number.isFinite(n) ? n : 0; };
+  let PRIGHE = [
+    { descrizione: "calcinacci", cer: "17 01 07", tonnellate: "20" },
+    { descrizione: "plastiche da demolizione auto", cer: "16 01 19", tonnellate: "8", offerta: "0,35", unita: "kg", impianto: "Impianto plastiche (demo)", trasporto: "cliente" },
+  ];
+  function clientiLista(){ return importaClienti(RIGHE, INDICE, { cercaCER, trovaVoce, consiglio }).clienti; }
+  function aggiornaElenco(){ $("p-elenco").innerHTML = clientiLista().map(c=>`<option value="${esc(c.nome)}"></option>`).join(""); }
+  function disegnaRighe(){
+    $("p-righe").innerHTML = "";
+    PRIGHE.forEach((r, i) => {
+      const box = document.createElement("div"); box.className = "card";
+      box.innerHTML = `<div class="campi">
+        <div class="largo"><label for="pr-d${i}">Rifiuto</label><input id="pr-d${i}" value="${esc(r.descrizione)}" placeholder="es. calcinacci"></div>
+        <div><label for="pr-c${i}">Codice CER</label><input id="pr-c${i}" value="${esc(r.cer)}"></div>
+        <div><label for="pr-t${i}">Tonnellate stimate</label><input id="pr-t${i}" inputmode="decimal" value="${esc(r.tonnellate)}"></div>
+        <div><label for="pr-tr${i}">Trasporto</label><select id="pr-tr${i}"><option value="nostro"${r.trasporto!=="cliente"?" selected":""}>A nostro carico</option><option value="cliente"${r.trasporto==="cliente"?" selected":""}>A cura del cliente</option></select></div>
+      </div>
+      <details class="offerta"${String(r.offerta||"").trim() ? " open" : ""}><summary>Ho l'offerta dell'impianto${String(r.offerta||"").trim() ? `: ${esc(r.offerta)} €/${r.unita==="kg"?"kg":"t"}` : ""}</summary>
+        <div class="campi">
+          <div><label for="pr-o${i}">Prezzo dell'impianto</label><input id="pr-o${i}" inputmode="decimal" value="${esc(r.offerta||"")}" placeholder="vuoto = listino impianti"></div>
+          <div><label for="pr-u${i}">Unità</label><select id="pr-u${i}"><option value="t"${r.unita!=="kg"?" selected":""}>€/t</option><option value="kg"${r.unita==="kg"?" selected":""}>€/kg</option></select></div>
+          <div class="largo"><label for="pr-n${i}">Impianto</label><input id="pr-n${i}" value="${esc(r.impianto||"")}"></div>
+        </div>
+      </details><div class="chips" id="pr-s${i}"></div><button class="btn" type="button" id="pr-x${i}" style="justify-self:start;background:var(--muted)">Togli</button>`;
+      $("p-righe").appendChild(box);
+      const sugg = () => { const s = $("pr-s"+i); s.innerHTML = ""; if ($("pr-c"+i).value) return;
+        cercaCER(INDICE, $("pr-d"+i).value, 3).forEach(x => { const v = trovaVoce(INDICE, x.codice); const b = document.createElement("button"); b.type="button"; b.textContent = v.etichetta + " · " + v.descrizione.slice(0,40);
+          b.addEventListener("click", () => { PRIGHE[i].cer = v.etichetta; $("pr-c"+i).value = v.etichetta; s.innerHTML = ""; calcola(); }); s.appendChild(b); }); };
+      $("pr-d"+i).addEventListener("input", () => { PRIGHE[i].descrizione = $("pr-d"+i).value; sugg(); });
+      $("pr-c"+i).addEventListener("input", () => { PRIGHE[i].cer = $("pr-c"+i).value; sugg(); calcola(); });
+      $("pr-t"+i).addEventListener("input", () => { PRIGHE[i].tonnellate = $("pr-t"+i).value; calcola(); });
+      $("pr-x"+i).addEventListener("click", () => { PRIGHE.splice(i, 1); disegnaRighe(); calcola(); });
+      [["o","offerta"],["n","impianto"]].forEach(([k,c]) => $("pr-"+k+i).addEventListener("input", () => { PRIGHE[i][c] = $("pr-"+k+i).value; calcola(); }));
+      [["u","unita"],["tr","trasporto"]].forEach(([k,c]) => $("pr-"+k+i).addEventListener("change", () => { PRIGHE[i][c] = $("pr-"+k+i).value; calcola(); }));
+      sugg();
+    });
+  }
+  function calcola(){
+    const prev = preventivoVeloce({ righe: PRIGHE.map(r => ({ descrizione: r.descrizione, cer: r.cer, tonnellate: num(r.tonnellate), trasporto: r.trasporto,
+        offertaImpianto: r.impianto, offertaEuroT: String(r.offerta||"").trim() === "" ? "" : num(r.offerta) * (r.unita === "kg" ? 1000 : 1) })), km: num($("p-km").value), mezzi: MEZZI, impianti: IMPIANTI, oggi: OGGI,
+      parametri: { euroKm: num($("p-eurokm").value), ricaricoPct: num($("p-ricarico").value) } }, { normalizzaCER, statoScadenza });
+    $("p-risultato").innerHTML = `
+      <div class="kpis" style="margin-top:14px">
+        <div class="kpi"><b>${eur(prev.imponibile)}</b><small>imponibile</small></div>
+        <div class="kpi"><b>${eur(prev.totale)}</b><small>totale con IVA</small></div>
+        <div class="kpi"><b class="${prev.margine>=0?"good":"bad"}">${eur(prev.margine)}</b><small>margine stimato (solo per te)</small></div>
+        <div class="kpi"><b>${prev.righe.reduce((s,r)=>s+(r.viaggi||0),0)}</b><small>viaggi</small></div>
+      </div>
+      <div class="tablebox"><table>
+        <thead><tr><th>Rifiuto</th><th>CER</th><th class="n">t</th><th>Impianto</th><th>Mezzo</th><th class="n">Viaggi</th><th class="n">Impianto €</th><th class="n">Trasporto €</th><th class="n">Prezzo</th><th class="n">€/t</th></tr></thead>
+        <tbody>${prev.righe.map(r => r.problemi.length
+          ? `<tr><td>${esc(r.descrizione||"–")}</td><td>${r.cer ? cerTag(r.cer) : "–"}</td><td colspan="8" class="bad" style="white-space:normal">${esc(r.problemi.join(" · "))}</td></tr>`
+          : `<tr><td>${esc(r.descrizione||"–")}</td><td>${cerTag(r.cer)}</td><td class="n">${r.tonnellate.toLocaleString("it-IT")}</td><td>${esc(r.impianto)}</td><td>${esc(r.mezzo)}</td><td class="n">${r.viaggi}</td><td class="n">${eur(r.costoImpianto)}</td><td class="n">${eur(r.costoTrasporto)}</td><td class="n"><strong>${eur(r.prezzo)}</strong></td><td class="n">${eur(r.prezzoTonnellata)}</td></tr>`).join("")}</tbody>
+      </table></div>`;
+    $("p-testo").value = testoPreventivo($("p-cliente").value.trim() || "cliente", prev, OGGI);
+    $("p-wa").href = linkWhatsApp($("p-testo").value);
+    $("p-barra-wa").href = $("p-wa").href;
+    $("p-barra-tot").textContent = eur(prev.totale);
+    try { localStorage.setItem("parametri", JSON.stringify({ km: $("p-km").value, eurokm: $("p-eurokm").value, ricarico: $("p-ricarico").value })); } catch (e) {}
+    etichette();
+  }
+  // Sul telefono le tabelle diventano schede: ogni cella prende il nome della sua colonna
+  function etichette(){
+    document.querySelectorAll(".tablebox table").forEach(t => {
+      const nomi = [...t.querySelectorAll("thead th")].map(th => th.textContent.trim());
+      t.querySelectorAll("tbody tr").forEach(tr => { let col = 0;
+        [...tr.children].forEach(td => { td.setAttribute("data-label", td.colSpan > 1 ? "" : (nomi[col] || "")); col += td.colSpan || 1; }); });
+    });
+  }
+  try { const s = JSON.parse(localStorage.getItem("parametri") || "null"); if (s) { $("p-km").value = s.km; $("p-eurokm").value = s.eurokm; $("p-ricarico").value = s.ricarico; } } catch (e) {}
+  ["p-km","p-eurokm","p-ricarico","p-cliente"].forEach(id => $(id).addEventListener("input", calcola));
+  $("p-aggiungi").addEventListener("click", () => { PRIGHE.push({ descrizione: "", cer: "", tonnellate: "" }); disegnaRighe(); calcola(); });
+  $("p-dalista").addEventListener("click", () => {
+    const c = clientiLista().find(x => x.nome.toLowerCase() === $("p-cliente").value.trim().toLowerCase());
+    if (!c) { $("p-copiato").textContent = "Cliente non trovato nella lista clienti."; return; }
+    PRIGHE = c.rifiuti.map(x => ({ descrizione: x.descrizione, cer: x.etichetta || "", tonnellate: "" }));
+    disegnaRighe(); calcola(); $("p-copiato").textContent = `Caricati ${PRIGHE.length} rifiuti di ${c.nome}: scrivi le tonnellate.`;
+  });
+  $("p-copia").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText($("p-testo").value); $("p-copiato").textContent = "Copiato."; }
+    catch (e) { $("p-testo").select(); $("p-copiato").textContent = "Testo selezionato: premi Ctrl+C."; }
+  });
+  aggiornaElenco(); disegnaRighe(); calcola();
+  $("controlla").addEventListener("click", aggiornaElenco);
+  $("nuovo").addEventListener("submit", aggiornaElenco);
+
+  // Ritiri di oggi
+  const controlli = RITIRI_OGGI.map(r => ({ r, c: controllaRitiro(r, ctx, OGGI) }));
+  const conta = (e) => controlli.filter(x=>x.c.esito===e).length;
+  const etichetta = { ok:"Pronto", attenzione:"Attenzione", bloccato:"Bloccato" };
+  $("v-oggi").innerHTML = `
+    <div class="kpis">
+      <div class="kpi"><b>${RITIRI_OGGI.length}</b><small>ritiri in programma</small></div>
+      <div class="kpi"><b class="good">${conta("ok")}</b><small>pronti a partire</small></div>
+      <div class="kpi"><b style="color:var(--warn)">${conta("attenzione")}</b><small>con un avviso</small></div>
+      <div class="kpi"><b class="bad">${conta("bloccato")}</b><small>bloccati prima di partire</small></div>
+    </div>
+    <h2>Controllo prima della partenza</h2>
+    <p class="lead">Per ogni ritiro il sistema controlla che il mezzo sia autorizzato a quel codice CER, che l'impianto lo possa ricevere, che autorizzazioni e revisioni siano valide e che il carico stia nella portata.</p>
+    <div class="list">${controlli.map(({r,c}) => `
+      <article class="card ${c.esito}">
+        <div class="row"><strong>${r.ora}</strong><span>${cliente(r.cliente)}</span>${cerTag(r.cer)}<span class="pill ${c.esito}">${etichetta[c.esito]}</span></div>
+        <div class="row muted"><span>Mezzo ${r.targa}</span><span>→ ${impianto(r.impianto)}</span><span>stimati ${kg(r.kgStimati)}</span></div>
+        ${c.problemi.length ? `<ul class="prob">${c.problemi.map(p=>`<li class="${p.livello}">${p.testo}</li>`).join("")}</ul>` : `<span class="muted">Tutto in regola: il FIR si può preparare.</span>`}
+      </article>`).join("")}
+    </div>`;
+
+  // FIR e pesi
+  const aperti = firAperti(VIAGGI, OGGI);
+  $("v-fir").innerHTML = `
+    <h2>FIR del mese e pesi a destino</h2>
+    <p class="lead">Si fattura sempre il peso verificato all'impianto. Se si discosta oltre il ${PARAMETRI.tolleranzaPesoPct}% dal peso in partenza, la riga si evidenzia. I FIR senza peso a destino dopo 3 giorni finiscono tra gli aperti.</p>
+    ${aperti.length ? `<p class="bad">FIR ancora aperti: ${aperti.map(a=>`${a.fir} (${cliente(a.cliente)}, da ${a.giorni} giorni)`).join(" · ")}</p>` : ""}
+    <div class="tablebox"><table>
+      <thead><tr><th>FIR</th><th>Data</th><th>Cliente</th><th>CER</th><th>Impianto</th><th class="n">Partenza</th><th class="n">Destino</th><th class="n">Scarto</th></tr></thead>
+      <tbody>${VIAGGI.map(v => { const s = scostamentoPeso(v.kgPartenza, v.kgDestino); return `
+        <tr><td>${v.fir}</td><td>${dIt(v.data)}</td><td>${cliente(v.cliente)}</td><td>${cerTag(v.cer)}</td><td>${impianto(v.impianto)}</td>
+        <td class="n">${kg(v.kgPartenza)}</td><td class="n">${v.kgDestino>=0?kg(v.kgDestino):'<span class="bad">manca</span>'}</td>
+        <td class="n ${s.fuoriTolleranza?"bad":""}">${s.diffPct===null?"–":(s.diffPct>0?"+":"")+s.diffPct.toLocaleString("it-IT")+"%"}</td></tr>`; }).join("")}
+      </tbody></table></div>`;
+
+  // Fatture
+  function disegnaFattura(id){
+    const f = fatturaMensile(id, OGGI.slice(0,7), VIAGGI, LISTINO);
+    const m = f.righe.map(r => margineViaggio(VIAGGI.find(v=>v.fir===r.fir), LISTINO, IMPIANTI, 1.5));
+    const margTot = Math.round(m.reduce((s,x)=>s+x.margine,0)*100)/100;
+    $("fattura").innerHTML = `
+      <div class="tablebox"><table>
+        <thead><tr><th>FIR</th><th>Data</th><th>CER</th><th class="n">Tonnellate</th><th class="n">Smaltimento</th><th class="n">Trasporto</th><th class="n">Imponibile</th><th class="n">Margine stimato</th></tr></thead>
+        <tbody>${f.righe.map((r,i)=>`<tr><td>${r.fir}</td><td>${dIt(r.data)}</td><td>${cerTag(r.cer)}</td><td class="n">${r.tonnellate.toLocaleString("it-IT")}</td><td class="n">${eur(r.smaltimento)}</td><td class="n">${eur(r.trasporto)}</td><td class="n">${eur(r.imponibile)}</td><td class="n">${eur(m[i].margine)}</td></tr>`).join("")}</tbody>
+        <tfoot>
+          <tr><td colspan="6">Imponibile</td><td class="n">${eur(f.imponibile)}</td><td class="n">${eur(margTot)}</td></tr>
+          <tr><td colspan="6">IVA ${PARAMETRI.aliquotaIva}%</td><td class="n">${eur(f.iva)}</td><td></td></tr>
+          <tr><td colspan="6">Totale</td><td class="n">${eur(f.totale)}</td><td></td></tr>
+        </tfoot></table></div>
+      ${f.scartati.length?`<p class="bad">Non fatturabili ancora: ${f.scartati.map(s=>`${s.fir} (${s.motivo.toLowerCase()})`).join(" · ")}</p>`:""}
+      <p class="muted">Margine = imponibile − costo impianto (€/t) − costo mezzo (1,50 €/km, valore di prova). Il ferro ha costo impianto negativo: l'impianto lo paga.</p>`;
+  }
+  $("v-fatture").innerHTML = `
+    <h2>Fattura del mese per cliente</h2>
+    <p class="lead">Righe prese dai FIR chiusi, prezzi dal listino del cliente per codice CER (€/tonnellata, € a viaggio, eventuale minimo fatturabile).</p>
+    <div class="toolbar"><label for="selCliente">Cliente</label>
+      <select id="selCliente">${CLIENTI.map(c=>`<option value="${c.id}">${c.nome}</option>`).join("")}</select></div>
+    <div id="fattura"></div>`;
+  $("selCliente").addEventListener("change", e => disegnaFattura(e.target.value));
+  disegnaFattura(CLIENTI[0].id);
+
+  // Scadenze
+  const sc = scadenzario({ azienda: AZIENDA, mezzi: MEZZI, impianti: IMPIANTI }, OGGI);
+  const testoStato = { valida:"Valida", in_scadenza:"In scadenza", scaduta:"Scaduta", mancante:"Mancante" };
+  $("v-scadenze").innerHTML = `
+    <h2>Scadenzario</h2>
+    <p class="lead">Iscrizione all'Albo, revisioni dei mezzi e autorizzazioni degli impianti di destino. Avviso ${PARAMETRI.giorniPreavvisoScadenza} giorni prima.</p>
+    <div class="tablebox"><table>
+      <thead><tr><th>Cosa</th><th>Scade il</th><th class="n">Giorni</th><th>Stato</th></tr></thead>
+      <tbody>${sc.map(s=>`<tr><td>${s.cosa}</td><td>${dIt(s.data)}</td><td class="n">${s.giorni}</td><td><span class="pill ${s.stato}">${testoStato[s.stato]}</span></td></tr>`).join("")}</tbody>
+    </table></div>`;
+
+  // Riepilogo CER
+  const rie = riepilogoAnnuale(OGGI.slice(0,4), VIAGGI);
+  const max = Math.max(...rie.map(r=>r.kg));
+  $("v-cer").innerHTML = `
+    <h2>Quantità per codice CER, anno ${OGGI.slice(0,4)}</h2>
+    <p class="lead">Pesi verificati a destino, sommati per codice. È la base per controllare la dichiarazione annuale (MUD) e per vedere quali flussi rendono di più.</p>
+    <div class="tablebox"><table>
+      <thead><tr><th>CER</th><th>Descrizione</th><th class="n">Viaggi</th><th class="n">Peso</th><th></th></tr></thead>
+      <tbody>${rie.map(r=>{ const n = normalizzaCER(r.cer); return `<tr><td>${cerTag(r.cer)}</td><td style="white-space:normal;min-width:200px">${DESCRIZIONI_CER[n.codice]??""}</td><td class="n">${r.viaggi}</td><td class="n">${kg(r.kg)}</td><td><div class="bar"><i style="width:${Math.round(r.kg/max*100)}%"></i></div></td></tr>`; }).join("")}</tbody>
+    </table></div>
+    <p class="muted">Codici con l'asterisco e il bordo arancione: rifiuti pericolosi.</p>`;
+
+  // Schede
+  etichette();
+  if (typeof MutationObserver !== "undefined") new MutationObserver(etichette).observe(document.body, { childList: true, subtree: true });
+  const tabs = [...document.querySelectorAll("nav button")];
+  function mostra(v){
+    tabs.forEach(b => b.setAttribute("aria-selected", String(b.dataset.v===v)));
+    $("p-barra").hidden = v !== "prev";
+    ["clienti","prev","codici","oggi","fir","fatture","scadenze","cer"].forEach(x => $("v-"+x).hidden = x!==v);
+    try { localStorage.setItem("scheda", v); } catch(e) {}
+  }
+  tabs.forEach(b => b.addEventListener("click", () => mostra(b.dataset.v)));
+  try { const s = localStorage.getItem("scheda"); if (s && $("v-"+s)) mostra(s); } catch(e) {}
+})();
+</script>
+
+</html>
