@@ -152,6 +152,8 @@ details.altro{background:var(--surface);border:1px solid var(--line);border-radi
 details.altro summary{cursor:pointer;font-weight:600;color:var(--accent);min-height:44px;display:flex;align-items:center}
 details.altro .form{border:0;padding:0;margin:4px 0 10px}
 details.altro textarea{margin-bottom:4px}
+/* il testo del preventivo si legge come un messaggio, non come codice */
+#p-testo{font-family:var(--f-body);font-size:15px;line-height:1.5;padding:12px 14px}
 </style>
 
 <div class="wrap">
@@ -886,7 +888,9 @@ function testoPreventivo(cliente, prev, oggi) {
   const cerTag = (c) => { const n = normalizzaCER(c); return n ? `<span class="cer${n.pericoloso?" haz":""}" title="${DESCRIZIONI_CER[n.codice]??""}">${n.etichetta}</span>` : `<span class="cer">${c}</span>`; };
   const INDICE = costruisciIndice(ELENCO_EER.voci);
   const ctx = { mezzi: MEZZI, impianti: IMPIANTI, clienti: CLIENTI, azienda: AZIENDA, elenco: INDICE };
-  $("oggi").textContent = dIt(OGGI);
+  // La data vera di oggi (fuso del telefono): in alto e nel preventivo. I dati di prova (ritiri, FIR, scadenze) restano sulla loro data.
+  const OGGI_VERO = (() => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); })();
+  $("oggi").textContent = dIt(OGGI_VERO);
 
   // Codici CER: ricerca + assistente
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
@@ -1041,7 +1045,7 @@ function testoPreventivo(cliente, prev, oggi) {
         <div><label for="pr-t${i}">Tonnellate stimate</label><input id="pr-t${i}" inputmode="decimal" value="${esc(r.tonnellate)}"></div>
         <div><label for="pr-tr${i}">Trasporto</label><select id="pr-tr${i}"><option value="cliente"${r.trasporto!=="nostro"?" selected":""}>Lo fa il produttore</option><option value="nostro"${r.trasporto==="nostro"?" selected":""}>Lo quotiamo a parte</option></select></div>
       </div>
-      <details class="offerta"${String(r.offerta||"").trim() ? " open" : ""}><summary>Ho l'offerta dell'impianto${String(r.offerta||"").trim() ? `: ${esc(r.offerta)} €/${r.unita==="kg"?"kg":"t"}` : ""}</summary>
+      <details class="offerta"${String(r.offerta||"").trim() ? " open" : ""}><summary id="pr-sum${i}">Ho l'offerta dell'impianto${String(r.offerta||"").trim() ? `: ${esc(r.offerta)} €/${r.unita==="kg"?"kg":"t"}` : ""}</summary>
         <div class="campi">
           <div><label for="pr-o${i}">Prezzo dell'impianto</label><input id="pr-o${i}" inputmode="decimal" value="${esc(r.offerta||"")}" placeholder="vuoto = listino impianti"></div>
           <div><label for="pr-u${i}">Unità</label><select id="pr-u${i}"><option value="t"${r.unita!=="kg"?" selected":""}>€/t</option><option value="kg"${r.unita==="kg"?" selected":""}>€/kg</option></select></div>
@@ -1056,8 +1060,10 @@ function testoPreventivo(cliente, prev, oggi) {
       $("pr-c"+i).addEventListener("input", () => { PRIGHE[i].cer = $("pr-c"+i).value; sugg(); calcola(); });
       $("pr-t"+i).addEventListener("input", () => { PRIGHE[i].tonnellate = $("pr-t"+i).value; calcola(); });
       $("pr-x"+i).addEventListener("click", () => { PRIGHE.splice(i, 1); disegnaRighe(); calcola(); });
-      [["o","offerta"],["n","impianto"]].forEach(([k,c]) => $("pr-"+k+i).addEventListener("input", () => { PRIGHE[i][c] = $("pr-"+k+i).value; calcola(); }));
-      [["u","unita"],["tr","trasporto"]].forEach(([k,c]) => $("pr-"+k+i).addEventListener("change", () => { PRIGHE[i][c] = $("pr-"+k+i).value; calcola(); }));
+      [["o","offerta"],["n","impianto"]].forEach(([k,c]) => $("pr-"+k+i).addEventListener("input", () => { PRIGHE[i][c] = $("pr-"+k+i).value; riassunto(); calcola(); }));
+      // il prezzo dell'impianto resta visibile anche a riquadro chiuso
+      const riassunto = () => { const o = String(PRIGHE[i].offerta||"").trim(); $("pr-sum"+i).textContent = "Ho l'offerta dell'impianto" + (o ? `: ${o} €/${PRIGHE[i].unita==="kg"?"kg":"t"}` : ""); };
+      [["u","unita"],["tr","trasporto"]].forEach(([k,c]) => $("pr-"+k+i).addEventListener("change", () => { PRIGHE[i][c] = $("pr-"+k+i).value; riassunto(); calcola(); }));
       sugg();
     });
   }
@@ -1078,7 +1084,7 @@ function testoPreventivo(cliente, prev, oggi) {
           ? `<tr><td>${esc(r.descrizione||"–")}</td><td>${r.cer ? cerTag(r.cer) : "–"}</td><td colspan="8" class="bad" style="white-space:normal">${esc(r.problemi.join(" · "))}</td></tr>`
           : `<tr><td>${esc(r.descrizione||"–")}</td><td>${cerTag(r.cer)}</td><td class="n">${r.tonnellate.toLocaleString("it-IT")}</td><td>${esc(r.impianto)}</td><td>${esc(r.mezzo)}</td><td class="n">${r.viaggi}</td><td class="n">${eur(r.costoImpianto)}</td><td class="n">${eur(r.costoTrasporto)}</td><td class="n"><strong>${eur(r.prezzo)}</strong></td><td class="n">${eur(r.prezzoTonnellata)}</td></tr>`).join("")}</tbody>
       </table></div>`;
-    $("p-testo").value = testoPreventivo($("p-cliente").value.trim() || "cliente", prev, OGGI);
+    $("p-testo").value = testoPreventivo($("p-cliente").value.trim() || "cliente", prev, OGGI_VERO);
     $("p-wa").href = linkWhatsApp($("p-testo").value);
     $("p-barra-wa").href = $("p-wa").href;
     $("p-barra-tot").textContent = eur(prev.totale);
