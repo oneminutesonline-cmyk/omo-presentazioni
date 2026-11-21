@@ -131,6 +131,27 @@ textarea{width:100%;font-family:var(--f-mono);font-size:13px;padding:10px 12px;b
 details.offerta{margin-top:8px;border-top:1px dashed var(--line);padding-top:8px}
 details.offerta summary{cursor:pointer;font-weight:600;color:var(--accent);min-height:32px;display:flex;align-items:center}
 details.offerta .campi{margin-top:8px}
+/* Lista clienti (21/11/2026): una scheda per stabilimento, codici leggibili, preventivo con un tocco */
+.carica{display:grid;gap:6px;margin:4px 0 14px}
+.btn.grande{display:flex;justify-content:center;align-items:center;min-height:52px;font-size:17px;border-radius:10px}
+.filtri{margin:10px 0}
+.filtri button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.cli{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--ok);border-radius:10px;padding:12px 14px;display:grid;gap:8px;min-width:0}
+.cli.attenzione{border-left-color:var(--warn)}.cli.bloccato{border-left-color:var(--bad)}
+.cli-top{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.cli h3{font-family:var(--f-display);font-size:20px;line-height:1.15;margin:0;overflow-wrap:anywhere}
+.cli .dove{color:var(--muted);font-size:14px}
+.cli .btn{flex:0 0 auto;padding:8px 12px;min-height:40px}
+ul.codici{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+ul.codici li{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;align-items:baseline;padding-top:8px;border-top:1px solid var(--line)}
+ul.codici .dsc{font-size:14px}
+ul.codici .note{grid-column:1/-1;font-size:13px}
+ul.codici .note div{margin-top:2px}
+.vicini{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+details.altro{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:4px 14px;margin-top:12px}
+details.altro summary{cursor:pointer;font-weight:600;color:var(--accent);min-height:44px;display:flex;align-items:center}
+details.altro .form{border:0;padding:0;margin:4px 0 10px}
+details.altro textarea{margin-bottom:4px}
 </style>
 
 <div class="wrap">
@@ -158,7 +179,7 @@ details.offerta .campi{margin-top:8px}
 
   <section id="v-prev" hidden>
     <h2>Preventivo veloce</h2>
-    <p class="lead">Scrivi il cliente, i rifiuti e le tonnellate stimate. Se hai già l'offerta dell'impianto, inserisci il suo prezzo (anche in €/kg): il sistema aggiunge trasporto e ricarico e ti dà il prezzo al cliente in €/t. Senza offerta sceglie lui l'impianto autorizzato più conveniente dal listino. Poi prepara il testo da mandare.</p>
+    <p class="lead">Cliente, rifiuti e tonnellate stimate. Con l'offerta dell'impianto (anche in €/kg) aggiungo trasporto e ricarico; senza, scelgo l'impianto autorizzato più conveniente dal listino. Il testo per il cliente è pronto da mandare.</p>
     <div class="form">
       <div class="campi">
         <div class="largo"><label for="p-cliente">Cliente</label><input id="p-cliente" list="p-elenco" placeholder="scrivi o scegli dalla lista clienti" value="Edil Adriatica (demo)"><datalist id="p-elenco"></datalist></div>
@@ -195,30 +216,37 @@ details.offerta .campi{margin-top:8px}
 
   </section>
   <section id="v-clienti">
-    <h2>Carica la lista clienti</h2>
-    <p class="lead">Carica l'Excel che hai già, così com'è, oppure scrivi un cliente. Ogni codice viene controllato sull'elenco ufficiale; dove manca, lo proponiamo dalla descrizione del rifiuto.</p>
-    <div class="toolbar">
-      <label class="btn" for="file">Carica file Excel o CSV</label>
+    <h2>I tuoi clienti</h2>
+    <div class="carica">
+      <label class="btn grande" for="file">Carica il tuo Excel</label>
       <input id="file" type="file" accept=".xlsx,.xls,.csv,.tsv,.txt" class="sr">
-      <span class="muted" id="fileNome">oppure copia le righe da Excel e incollale qui sotto</span>
+      <p class="muted" id="fileNome">Va bene così com'è: anche senza intestazioni, con più codici nella stessa cella o con lo stabilimento nel nome. Il file resta sul tuo telefono: non viene inviato a nessuno.</p>
     </div>
-    <form id="nuovo" class="form" autocomplete="off">
-      <h3>Oppure scrivi un cliente</h3>
-      <div class="campi">
-        <div><label for="f-cliente">Cliente *</label><input id="f-cliente" required placeholder="Ragione sociale"></div>
-        <div><label for="f-piva">Partita IVA</label><input id="f-piva" inputmode="numeric" placeholder="11 cifre"><small id="f-piva-ok" class="muted"></small></div>
-        <div><label for="f-comune">Comune / cantiere</label><input id="f-comune"></div>
-        <div class="largo"><label for="f-rifiuto">Che rifiuto è?</label><input id="f-rifiuto" placeholder="es. calcinacci, cartongesso, olio motore"></div>
-        <div><label for="f-cer">Codice CER</label><input id="f-cer" placeholder="lo propongo io"></div>
-        <div><label for="f-impianto">Impianto</label><input id="f-impianto"></div>
-        <div><label for="f-prezzo">Prezzo €/t</label><input id="f-prezzo" inputmode="decimal"></div>
-      </div>
-      <div class="chips" id="f-proposte" aria-live="polite"></div>
-      <div class="toolbar"><button class="btn" type="submit">Aggiungi alla lista</button><span class="muted" id="f-esito"></span></div>
-    </form>
-    <h3 class="sotto">Lista attuale</h3>
-    <label for="csv" class="sr">Lista clienti</label>
-    <textarea id="csv" rows="8" spellcheck="false">Cliente	P.IVA	Comune	CER	Rifiuto	Impianto	€/t
+    <div id="riepilogo"></div>
+    <div class="search"><label for="cerca-cliente" class="sr">Cerca un cliente, una città o un codice</label>
+      <input id="cerca-cliente" type="search" autocomplete="off" placeholder="Cerca cliente, città o codice"></div>
+    <div class="chips filtri" id="filtri" role="group" aria-label="Filtra i clienti"></div>
+    <div id="profili" class="list"></div>
+    <details class="altro" id="d-nuovo">
+      <summary>Scrivi un cliente a mano</summary>
+      <form id="nuovo" class="form" autocomplete="off">
+        <div class="campi">
+          <div><label for="f-cliente">Cliente *</label><input id="f-cliente" required placeholder="Ragione sociale"></div>
+          <div><label for="f-piva">Partita IVA</label><input id="f-piva" inputmode="numeric" placeholder="11 cifre"><small id="f-piva-ok" class="muted"></small></div>
+          <div><label for="f-comune">Comune / stabilimento</label><input id="f-comune"></div>
+          <div class="largo"><label for="f-rifiuto">Che rifiuto è?</label><input id="f-rifiuto" placeholder="es. calcinacci, fanghi, imballaggi sporchi"></div>
+          <div><label for="f-cer">Codice CER</label><input id="f-cer" placeholder="lo propongo io"></div>
+          <div><label for="f-impianto">Impianto</label><input id="f-impianto"></div>
+          <div><label for="f-prezzo">Prezzo €/t</label><input id="f-prezzo" inputmode="decimal"></div>
+        </div>
+        <div class="chips" id="f-proposte" aria-live="polite"></div>
+        <div class="toolbar"><button class="btn" type="submit">Aggiungi alla lista</button><span class="muted" id="f-esito"></span></div>
+      </form>
+    </details>
+    <details class="altro">
+      <summary>Incolla le righe da Excel</summary>
+      <label for="csv" class="sr">Lista clienti</label>
+      <textarea id="csv" rows="8" spellcheck="false">Cliente	P.IVA	Comune	CER	Rifiuto	Impianto	€/t
 Edil Adriatica (demo)	12345678903	Pescara	17 09 04	misti da cantiere	Recupero Inerti	45
 Edil Adriatica (demo)	12345678903	Pescara		calcinacci	Recupero Inerti	22
 Edil Adriatica (demo)			17 06 05*	tettoia in eternit		
@@ -227,9 +255,8 @@ Officina Gran Sasso (demo)			15 01 10	latte di vernice vuote		850
 Officina Gran Sasso (demo)				pneumatici		220
 Scavi Maiella (demo)		Spoltore	17 05 99	terra da scavo		15
 Supermercati Costa Verde (demo)		Montesilvano		cartone		35,50</textarea>
-    <div class="toolbar" style="margin-top:8px"><button class="btn" id="controlla" type="button">Controlla la lista</button></div>
-    <div id="riepilogo"></div>
-    <div id="profili"></div>
+      <div class="toolbar" style="margin-top:8px"><button class="btn" id="controlla" type="button">Controlla la lista</button></div>
+    </details>
   </section>
   <section id="v-oggi" hidden></section>
   <section id="v-fir" hidden></section>
@@ -499,7 +526,7 @@ const ELENCO_EER = {"fonte":"Decisione 2000/532/CE, testo consolidato IT al 01.0
 // Funzioni pure. La ricerca è per parole chiave e sinonimi del cantiere (deterministica): nella versione completa
 // la proposta arriva da un modello IA su descrizione e foto, ma la scelta del codice resta del produttore.
 
-const pulisci = (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9 ]/g, " ");
+const pulisci = (s) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9 ]/g, " ");
 const PAROLE_VUOTE = new Set("di da del della dei delle degli il lo la le gli i un una e o ed in con per a al alla ai alle non che quelli quelle quella quello cui voce voci diversi diverse altri altre altro tali loro come ad esempio".split(" "));
 // radice grezza: toglie la vocale finale (plurali e generi: imballaggio/imballaggi, pittura/pitture)
 const radice = (w) => (w.length > 4 ? w.replace(/[aeio]$/, "") : w);
@@ -611,7 +638,7 @@ function importaProfili(testo, indice) {
 // Caricamento della lista clienti (da Excel incollato, CSV o righe già lette da un .xlsx) — OMO Agency 20/11/2026.
 // Funzioni pure. Usa catalogo.mjs (trovaVoce, cercaCER, consiglio) per controllare e proporre i codici.
 
-const norm = (s) => String(s ?? "").replace(/€/g, "euro").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]/g, "");
+const norm = (s) => String(s ?? "").replace(/€/g, "euro").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
 
 // Nomi di colonna accettati (l'Excel del cliente può chiamarle in tanti modi).
 const COLONNE = {
@@ -622,16 +649,47 @@ const COLONNE = {
   rifiuto: ["rifiuto", "descrizione", "descrizionerifiuto", "materiale", "tipologia", "note", "nota"],
   impianto: ["impianto", "destinazione", "destino", "impiantodidestino"],
   prezzo: ["prezzo", "prezzot", "eurot", "euroatonnellata", "tariffa", "prezzotonnellata"],
+  altro: ["altrotesto"],
 };
+
+// Codici EER/CER dentro un testo qualsiasi: «EER120118*EER130502*», «EER 160303*», «17 09 04», «17.06.05 *».
+// Sei cifre isolate (non dentro numeri più lunghi come P.IVA o telefoni), con l'asterisco se c'è.
+function estraiCodici(testo) {
+  return [...String(testo ?? "").matchAll(/(?<!\d)(\d{2})[ .]?(\d{2})[ .]?(\d{2})(?!\d)\s*(\*)?/g)]
+    .map((m) => `${m[1]} ${m[2]} ${m[3]}${m[4] ? "*" : ""}`);
+}
+
+// Tabella (righe × celle) → righe come oggetti {intestazione: valore}.
+// Con intestazioni (cercate nelle prime 5 righe) funziona come sempre. Senza intestazioni ma con codici
+// (l'Excel «come viene», 21/11/2026) è FORMATO LIBERO: in ogni riga il primo testo è il cliente
+// («AZIENDA SPA STABILIMENTO DI CITTÀ (PR)» → cliente + comune), i codici si prendono ovunque, il resto va in «Altro testo».
+function righeDaMatrice(matrice) {
+  const M = (matrice || []).map((r) => (r || []).map((c) => String(c ?? "").trim())).filter((r) => r.some((c) => c));
+  if (!M.length) return [];
+  const iInt = M.slice(0, 5).findIndex((r) => Object.keys(mappaColonne(r)).length > 0);
+  const conCodici = M.some((r) => r.some((c) => estraiCodici(c).length));
+  if (iInt < 0 && conCodici) return M.map(rigaLibera);
+  const i0 = iInt < 0 ? 0 : iInt;
+  const intest = M[i0];
+  return M.slice(i0 + 1).map((r) => Object.fromEntries(r.map((v, i) => [intest[i] || `col${i + 1}`, v])));
+}
+
+function rigaLibera(r) {
+  const codici = r.flatMap(estraiCodici);
+  const testi = r.map((c) => c.replace(/(?<!\d)\d{2}[ .]?\d{2}[ .]?\d{2}(?!\d)\s*\*?/g, "").replace(/\s+/g, " ").trim())
+    .map((c) => (/^(?:\s*(?:EER|CER)\s*)*$/i.test(c) ? "" : c))
+    .filter((c) => /[a-zà-ü]/i.test(c));
+  const nome = testi[0] || "";
+  const m = nome.match(/^(.*?)\s+STABIL\w*\s+(?:DI\s+|DEL\s+|A\s+)?(.+)$/i);
+  return { Cliente: m ? m[1] : nome, Comune: m ? m[2] : "", CER: codici.join(" "), "Altro testo": testi.slice(1).join(" · ") };
+}
 
 // Testo incollato da Excel (tabulazioni) o CSV (; o ,) → righe come oggetti {intestazione: valore}.
 function leggiTabella(testo) {
   const righe = String(testo).split(/\r?\n/).filter((r) => r.trim());
   if (!righe.length) return [];
   const sep = righe[0].includes("\t") ? "\t" : righe[0].includes(";") ? ";" : ",";
-  const celle = (r) => r.split(sep).map((c) => c.trim().replace(/^"(.*)"$/, "$1"));
-  const intest = celle(righe[0]);
-  return righe.slice(1).map((r) => Object.fromEntries(celle(r).map((v, i) => [intest[i] ?? `col${i + 1}`, v])));
+  return righeDaMatrice(righe.map((r) => r.split(sep).map((c) => c.trim().replace(/^"(.*)"$/, "$1"))));
 }
 
 // Associa le intestazioni trovate ai campi noti.
@@ -679,25 +737,51 @@ function importaClienti(righe, indice, { cercaCER, trovaVoce, consiglio }) {
   const m = mappaColonne(intest);
   const mancanti = ["cliente"].filter((c) => !m[c]);
   if (mancanti.length) return { colonne: m, clienti: [], errori: [{ riga: 1, motivo: "Manca la colonna con il nome del cliente" }], totali: { clienti: 0, righe: 0, daCompletare: 0 } };
-  const clienti = new Map();
+  const lista = [];
   const errori = [];
   righe.forEach((r, i) => {
     const riga = i + 2; // riga 1 = intestazione
     const nome = (r[m.cliente] || "").trim();
     if (!nome) { errori.push({ riga, motivo: "Nome del cliente vuoto" }); return; }
-    const chiave = norm(nome);
-    if (!clienti.has(chiave)) clienti.set(chiave, { nome, piva: "", pivaOk: null, comune: "", rifiuti: [] });
-    const c = clienti.get(chiave);
+    // Uno stabilimento = un cliente: stessa azienda in comuni diversi resta separata;
+    // una riga senza comune va con l'ultimo cliente dello stesso nome.
+    const com = m.comune ? (r[m.comune] || "").trim() : "";
+    const stesso = lista.filter((x) => norm(x.nome) === norm(nome));
+    let c = com ? stesso.find((x) => norm(x.comune) === norm(com)) || stesso.find((x) => !x.comune) : stesso[stesso.length - 1];
+    if (!c) { c = { nome, piva: "", pivaOk: null, comune: "", altro: "", rifiuti: [] }; lista.push(c); }
+    if (com && !c.comune) c.comune = com;
+    c.nomeCompleto = c.comune ? `${c.nome} – ${c.comune}` : c.nome;
     if (m.piva && r[m.piva] && !c.piva) { c.piva = r[m.piva].trim(); c.pivaOk = pivaValida(c.piva); }
-    if (m.comune && r[m.comune] && !c.comune) c.comune = r[m.comune].trim();
-    const cerTesto = m.cer ? (r[m.cer] || "").trim() : "";
+    if (m.altro && r[m.altro]) c.altro = [c.altro, r[m.altro].trim()].filter(Boolean).join(" · ");
+    const scritto = m.cer ? (r[m.cer] || "").trim() : "";
+    const trovati = estraiCodici(scritto);
+    // più codici nella stessa cella → un rifiuto per codice
+    for (const cerTesto of trovati.length ? trovati : [scritto]) c.rifiuti.push(rifiuto(r, m, riga, cerTesto, indice, { cercaCER, trovaVoce, consiglio }));
+  });
+  for (const c of lista) if (c.piva && !c.pivaOk) c.avvisoPiva = "Partita IVA non valida (11 cifre con cifra di controllo)";
+  const tutte = lista.flatMap((c) => c.rifiuti);
+  return {
+    colonne: m, clienti: lista, errori,
+    totali: { clienti: lista.length, righe: tutte.length, daCompletare: tutte.filter((x) => x.stato !== "ok").length },
+  };
+}
+
+// Codici esistenti vicini a uno che non esiste: stesso sottocapitolo, o stesso capitolo con le ultime due cifre uguali.
+function codiciVicini(indice, codice) {
+  const c = String(codice).replace(/[ .*]/g, "");
+  if (!/^\d{6}$/.test(c)) return [];
+  return indice.filter((v) => v.codice !== c && (v.codice.startsWith(c.slice(0, 4)) || (v.codice.startsWith(c.slice(0, 2)) && v.codice.endsWith(c.slice(4)))))
+    .map((v) => v.etichetta).sort().slice(0, 6);
+}
+
+function rifiuto(r, m, riga, cerTesto, indice, { cercaCER, trovaVoce, consiglio }) {
     const descr = m.rifiuto ? (r[m.rifiuto] || "").trim() : "";
     const prezzo = m.prezzo ? prezzoNumero(r[m.prezzo]) : null;
-    const rif = { riga, cerScritto: cerTesto, descrizione: descr, impianto: m.impianto ? (r[m.impianto] || "").trim() : "", prezzo, avvisi: [], proposte: [] };
+    const rif = { riga, cerScritto: cerTesto, descrizione: descr, impianto: m.impianto ? (r[m.impianto] || "").trim() : "", prezzo, avvisi: [], proposte: [], vicini: [] };
     if (Number.isNaN(prezzo)) rif.avvisi.push(`Prezzo non leggibile: «${r[m.prezzo]}»`);
     if (cerTesto) {
       const v = trovaVoce(indice, cerTesto);
-      if (!v) { rif.stato = "errato"; rif.avvisi.push(`Il codice ${cerTesto} non esiste nell'elenco europeo`); }
+      if (!v) { rif.stato = "errato"; rif.avvisi.push(`Il codice ${cerTesto} non esiste nell'elenco europeo`); rif.vicini = codiciVicini(indice, cerTesto); }
       else {
         rif.codice = v.codice; rif.etichetta = v.etichetta; rif.pericoloso = v.pericoloso; rif.stato = "ok";
         if (/\*\s*$/.test(cerTesto) !== v.pericoloso) { rif.stato = "errato"; rif.avvisi.push(v.pericoloso ? "Manca l'asterisco: il codice è pericoloso" : "Asterisco di troppo: il codice non è pericoloso"); }
@@ -709,15 +793,7 @@ function importaClienti(righe, indice, { cercaCER, trovaVoce, consiglio }) {
       if (!cerTesto) rif.stato = rif.proposte.length ? "proposta" : "manca";
     }
     if (!cerTesto && !descr) { rif.stato = "manca"; rif.avvisi.push("Né codice né descrizione del rifiuto"); }
-    c.rifiuti.push(rif);
-  });
-  const lista = [...clienti.values()];
-  for (const c of lista) if (c.piva && !c.pivaOk) c.avvisoPiva = "Partita IVA non valida (11 cifre con cifra di controllo)";
-  const tutte = lista.flatMap((c) => c.rifiuti);
-  return {
-    colonne: m, clienti: lista, errori,
-    totali: { clienti: lista.length, righe: tutte.length, daCompletare: tutte.filter((x) => x.stato !== "ok").length },
-  };
+    return rif;
 }
 
 // Preventivo veloce per un ritiro rifiuti — OMO Agency 20/11/2026. Funzioni pure.
@@ -830,35 +906,65 @@ function testoPreventivo(cliente, prev, oggi) {
   $("q").addEventListener("input", cerca);
   cerca();
   // Lista clienti: incolla da Excel o carica il file
-  const STATO = { ok:["ok","Codice giusto"], verifica:["attenzione","Da verificare"], proposta:["attenzione","Codice proposto"], errato:["bloccato","Da correggere"], manca:["bloccato","Manca il codice"] };
+  // Stato di ogni codice come lo vede Enzo: il pericoloso con l'asterisco giusto è un codice giusto (l'avviso mezzo/Albo va sul cliente)
+  const specchio = (x) => x.avvisi.some(a => /specchio/i.test(a));
+  const vista = (x) => x.stato === "errato" ? ["bloccato","Da correggere"] : x.stato === "manca" ? ["bloccato","Manca il codice"]
+    : x.stato === "proposta" ? ["attenzione","Codice proposto"] : specchio(x) ? ["attenzione","Voce a specchio"] : ["ok","Codice giusto"];
+  const livello = (c) => c.rifiuti.some(x => vista(x)[0]==="bloccato") ? "bloccato" : c.rifiuti.some(x => vista(x)[0]==="attenzione") ? "attenzione" : "ok";
+  const corto = (d) => { let t = String(d||"").split(/[,(]/)[0].trim(); if (t.length > 70) t = t.slice(0, t.lastIndexOf(" ", 70)) + "…"; return t; };
+  const piatto = (s) => String(s||"").toLowerCase().replace(/\s+/g, "");
+  let ULTIMA = null, FILTRO = "tutti";
   function mostraLista(righe){
-    const r = importaClienti(righe, INDICE, { cercaCER, trovaVoce, consiglio });
-    const conta = (s) => r.clienti.flatMap(c=>c.rifiuti).filter(x=>x.stato===s).length;
+    ULTIMA = importaClienti(righe, INDICE, { cercaCER, trovaVoce, consiglio });
+    const r = ULTIMA, tutte = r.clienti.flatMap(c=>c.rifiuti);
+    const quanti = (l) => tutte.filter(x=>vista(x)[0]===l).length;
+    const libero = !!r.colonne.altro;
     const riconosciute = Object.entries(r.colonne).map(([k,h])=>`${esc(h)} → ${k}`).join(" · ");
     $("riepilogo").innerHTML = `
-      <div class="kpis" style="margin-top:14px">
+      <div class="kpis" style="margin-top:4px">
         <div class="kpi"><b>${r.totali.clienti}</b><small>clienti in anagrafica</small></div>
-        <div class="kpi"><b>${r.totali.righe}</b><small>rifiuti caricati</small></div>
-        <div class="kpi"><b class="good">${conta("ok")}</b><small>codici già giusti</small></div>
-        <div class="kpi"><b style="color:var(--warn)">${conta("proposta")+conta("verifica")}</b><small>da confermare</small></div>
-        <div class="kpi"><b class="bad">${conta("errato")+conta("manca")}</b><small>da correggere</small></div>
+        <div class="kpi"><b>${r.totali.righe}</b><small>codici caricati</small></div>
+        <div class="kpi"><b class="good">${quanti("ok")}</b><small>codici giusti</small></div>
+        <div class="kpi"><b class="${quanti("bloccato")?"bad":"good"}">${quanti("bloccato")}</b><small>da correggere</small></div>
       </div>
-      <p class="muted">Colonne riconosciute: ${riconosciute || "nessuna"}</p>
+      <p class="muted">${libero ? "Formato libero: in ogni riga ho trovato da solo cliente, stabilimento e codici." : `Colonne riconosciute: ${riconosciute || "nessuna"}`}</p>
       ${r.errori.length ? `<p class="bad">Righe scartate: ${r.errori.map(e=>`riga ${e.riga} (${esc(e.motivo)})`).join(" · ")}</p>` : ""}`;
-    $("profili").innerHTML = r.clienti.map(c => `
-      <div class="cliente"><h3>${esc(c.nome)}</h3>
-        <div class="row muted">${c.piva ? `<span>P.IVA ${esc(c.piva)} ${c.pivaOk ? '<span class="good">✓</span>' : `<span class="bad">${esc(c.avvisoPiva)}</span>`}</span>` : "<span>P.IVA mancante</span>"}${c.comune ? `<span>${esc(c.comune)}</span>` : ""}</div>
-        <div class="tablebox" style="margin-top:6px"><table>
-        <thead><tr><th>Riga</th><th>Rifiuto</th><th>Codice</th><th>Stato</th><th class="n">€/t</th><th>Da sapere</th></tr></thead>
-        <tbody>${c.rifiuti.map(x => `<tr>
-          <td>${x.riga}</td>
-          <td style="white-space:normal;min-width:140px">${esc(x.descrizione || "–")}</td>
-          <td>${x.etichetta ? cerTag(x.etichetta) : x.proposte.length ? x.proposte.map(cerTag).join(" ") : "–"}</td>
-          <td><span class="pill ${STATO[x.stato][0]}">${STATO[x.stato][1]}</span></td>
-          <td class="n">${x.prezzo != null && !Number.isNaN(x.prezzo) ? x.prezzo.toLocaleString("it-IT") : "–"}</td>
-          <td style="white-space:normal;min-width:240px">${[...(x.proposte.length && !x.etichetta ? ["Proposte dalla descrizione: le conferma il produttore."] : []), ...x.avvisi].map(a=>`<div class="${/non esiste|asterisco/i.test(a)?"bad":"muted"}">${esc(a)}</div>`).join("") || '<span class="good">OK</span>'}</td>
-        </tr>`).join("")}</tbody></table></div></div>`).join("");
+    const nSist = r.clienti.filter(c=>livello(c)!=="ok").length, nPer = r.clienti.filter(c=>c.rifiuti.some(x=>x.pericoloso)).length;
+    $("filtri").innerHTML = [["tutti","Tutti",r.clienti.length],["sistemare","Da controllare",nSist],["pericolosi","Con pericolosi",nPer]]
+      .map(([v,t,n]) => `<button type="button" data-f="${v}" aria-pressed="${FILTRO===v}">${t} · ${n}</button>`).join("");
+    disegnaClienti();
   }
+  function rigaCodice(x){
+    const [cl, et] = vista(x); const v = x.etichetta ? trovaVoce(INDICE, x.etichetta) : null;
+    const note = [...(x.proposte.length && !x.etichetta ? ["Proposte dalla descrizione: le conferma il produttore."] : []), ...x.avvisi.filter(a => !/^Rifiuto pericoloso/.test(a))];
+    const extra = note.map(a=>`<div class="${/non esiste|asterisco/i.test(a)?"bad":"muted"}">${esc(a)}</div>`).join("")
+      + (x.vicini.length ? `<div class="muted">Codici che esistono, vicini a questo (sceglie il produttore):</div><div class="vicini">${x.vicini.map(cerTag).join("")}</div>` : "")
+      + (x.proposte.length && !x.etichetta ? `<div class="vicini">${x.proposte.map(cerTag).join("")}</div>` : "");
+    return `<li>${x.etichetta ? cerTag(x.etichetta) : `<span class="cer">${esc(x.cerScritto || "–")}</span>`}
+      <div><span class="pill ${cl}">${et}</span> <span class="dsc" title="${esc(v ? v.descrizione : "")}">${v ? esc(corto(v.descrizione)) : ""}${x.descrizione ? ` <span class="muted">· ${esc(x.descrizione)}</span>` : ""}</span></div>
+      ${extra ? `<div class="note">${extra}</div>` : ""}</li>`;
+  }
+  function disegnaClienti(){
+    if (!ULTIMA) return;
+    const q = piatto($("cerca-cliente").value);
+    const vis = ULTIMA.clienti.map((c,i)=>({c,i})).filter(({c}) =>
+      (FILTRO==="tutti" || (FILTRO==="sistemare" && livello(c)!=="ok") || (FILTRO==="pericolosi" && c.rifiuti.some(x=>x.pericoloso)))
+      && (!q || piatto([c.nomeCompleto, c.altro, ...c.rifiuti.map(x => (x.etichetta||x.cerScritto) + " " + x.descrizione)].join(" ")).includes(q)));
+    $("profili").innerHTML = vis.length ? vis.map(({c,i}) => `
+      <article class="cli ${livello(c)}">
+        <div class="cli-top"><div><h3>${esc(c.nome)}</h3>
+          <div class="dove">${[c.comune, c.piva ? "P.IVA " + c.piva + (c.pivaOk ? " ✓" : "") : ""].filter(Boolean).map(esc).join(" · ")}</div>
+          ${c.avvisoPiva ? `<div class="bad">${esc(c.avvisoPiva)}</div>` : ""}</div>
+          <button class="btn" type="button" data-prev="${i}">Preventivo</button></div>
+        <ul class="codici">${c.rifiuti.map(rigaCodice).join("")}</ul>
+        ${c.rifiuti.some(x=>x.pericoloso) ? `<div class="muted">Ha rifiuti pericolosi: servono mezzo e iscrizione all'Albo abilitati.</div>` : ""}
+        ${c.altro ? `<div class="muted">Altro scritto nella riga: «${esc(c.altro)}»</div>` : ""}
+      </article>`).join("") : `<p class="muted">Nessun cliente trovato.</p>`;
+  }
+  $("cerca-cliente").addEventListener("input", disegnaClienti);
+  $("filtri").addEventListener("click", (e) => { const b = e.target.closest && e.target.closest("[data-f]"); if (!b) return; FILTRO = b.dataset.f;
+    document.querySelectorAll("#filtri button").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.f===FILTRO))); disegnaClienti(); });
+  $("profili").addEventListener("click", (e) => { const b = e.target.closest && e.target.closest("[data-prev]"); if (b) apriPreventivo(ULTIMA.clienti[Number(b.dataset.prev)], true); });
   let RIGHE = leggiTabella($("csv").value);
   $("controlla").addEventListener("click", () => { RIGHE = leggiTabella($("csv").value); mostraLista(RIGHE); });
 
@@ -892,12 +998,14 @@ function testoPreventivo(cliente, prev, oggi) {
       if (/\.xlsx?$/i.test(file.name)) {
         if (!window.XLSX) { $("fileNome").textContent = "Lettura Excel non disponibile: copia le righe e incollale qui sotto."; return; }
         const wb = XLSX.read(await file.arrayBuffer(), { type: "array" });
-        const righe = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: "", raw: false });
-        RIGHE = righe.map(r => Object.fromEntries(Object.entries(r).map(([k,v]) => [k, String(v)])));
+        // header:1 = righe così come sono: le intestazioni (se ci sono) le trova righeDaMatrice
+        RIGHE = righeDaMatrice(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, defval: "", raw: false }));
         mostraLista(RIGHE);
       } else {
         const t = await file.text(); $("csv").value = t; RIGHE = leggiTabella(t); mostraLista(RIGHE);
       }
+      FILTRO = "tutti"; mostraLista(RIGHE); aggiornaElenco();
+      $("fileNome").textContent = `${file.name}: ${ULTIMA.totali.clienti} clienti e ${ULTIMA.totali.righe} codici letti. Il file resta sul tuo telefono.`;
     } catch (err) { $("fileNome").textContent = "Non riesco a leggere il file: prova a incollare le righe qui sotto."; }
   });
   mostraLista(leggiTabella($("csv").value));
@@ -909,7 +1017,15 @@ function testoPreventivo(cliente, prev, oggi) {
     { descrizione: "plastiche da demolizione auto", cer: "16 01 19", tonnellate: "8", offerta: "0,35", unita: "kg", impianto: "Impianto plastiche (demo)", trasporto: "cliente" },
   ];
   function clientiLista(){ return importaClienti(RIGHE, INDICE, { cercaCER, trovaVoce, consiglio }).clienti; }
-  function aggiornaElenco(){ $("p-elenco").innerHTML = clientiLista().map(c=>`<option value="${esc(c.nome)}"></option>`).join(""); }
+  function aggiornaElenco(){ $("p-elenco").innerHTML = clientiLista().map(c=>`<option value="${esc(c.nomeCompleto)}"></option>`).join(""); }
+  // Dalla scheda cliente (o dal nome scritto) al preventivo: i suoi codici sono già pronti, mancano solo le tonnellate
+  function apriPreventivo(c, cambiaScheda){
+    $("p-cliente").value = c.nomeCompleto;
+    PRIGHE = c.rifiuti.map(x => ({ descrizione: x.descrizione || (x.etichetta ? corto(trovaVoce(INDICE, x.etichetta).descrizione) : ""), cer: x.etichetta || "", tonnellate: "" }));
+    disegnaRighe(); calcola();
+    $("p-copiato").textContent = `${PRIGHE.length} ${PRIGHE.length === 1 ? "rifiuto" : "rifiuti"} di ${c.nomeCompleto}${PRIGHE.some(r=>r.cer) ? ": scrivi le tonnellate e, se ce l'hai, il prezzo dell'impianto" : ": scrivi le tonnellate"}.`;
+    if (cambiaScheda) { mostra("prev"); if (typeof window !== "undefined" && window.scrollTo) window.scrollTo(0, 0); }
+  }
   function disegnaRighe(){
     $("p-righe").innerHTML = "";
     PRIGHE.forEach((r, i) => {
@@ -976,10 +1092,10 @@ function testoPreventivo(cliente, prev, oggi) {
   ["p-km","p-eurokm","p-ricarico","p-cliente"].forEach(id => $(id).addEventListener("input", calcola));
   $("p-aggiungi").addEventListener("click", () => { PRIGHE.push({ descrizione: "", cer: "", tonnellate: "" }); disegnaRighe(); calcola(); });
   $("p-dalista").addEventListener("click", () => {
-    const c = clientiLista().find(x => x.nome.toLowerCase() === $("p-cliente").value.trim().toLowerCase());
+    const scritto = $("p-cliente").value.trim().toLowerCase();
+    const c = clientiLista().find(x => x.nomeCompleto.toLowerCase() === scritto) || clientiLista().find(x => x.nome.toLowerCase() === scritto);
     if (!c) { $("p-copiato").textContent = "Cliente non trovato nella lista clienti."; return; }
-    PRIGHE = c.rifiuti.map(x => ({ descrizione: x.descrizione, cer: x.etichetta || "", tonnellate: "" }));
-    disegnaRighe(); calcola(); $("p-copiato").textContent = `Caricati ${PRIGHE.length} rifiuti di ${c.nome}: scrivi le tonnellate.`;
+    apriPreventivo(c, false);
   });
   $("p-copia").addEventListener("click", async () => {
     try { await navigator.clipboard.writeText($("p-testo").value); $("p-copiato").textContent = "Copiato."; }
