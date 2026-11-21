@@ -153,6 +153,9 @@ details.altro summary{cursor:pointer;font-weight:600;color:var(--accent);min-hei
 details.altro .form{border:0;padding:0;margin:4px 0 10px}
 details.altro textarea{margin-bottom:4px}
 /* il testo del preventivo si legge come un messaggio, non come codice */
+.carica-offerta{margin:12px 0 6px;display:grid;gap:6px}
+.carica-offerta .card .campi{margin:4px 0}
+.carica-offerta pre{white-space:pre-wrap;font-size:12px;max-height:220px;overflow:auto;background:var(--bg);padding:8px;border-radius:6px}
 #p-testo{font-family:var(--f-body);font-size:15px;line-height:1.5;padding:12px 14px}
 </style>
 
@@ -190,6 +193,17 @@ details.altro textarea{margin-bottom:4px}
         <div><label for="p-ricarico">Ricarico %</label><input id="p-ricarico" inputmode="decimal" value="25"></div>
       </div>
       <div class="toolbar" style="margin-top:10px"><button class="btn" type="button" id="p-dalista">Prendi i rifiuti del cliente dalla lista</button></div>
+      <div class="carica-offerta">
+        <label class="btn grande" for="off-file">Carica l'offerta dell'impianto (PDF o foto)</label>
+        <input id="off-file" type="file" accept="application/pdf,image/*,.txt" class="sr">
+        <p class="muted" id="off-stato">Fai una foto all'offerta o scegli il PDF: leggo prezzo, codice, impianto e validità. Il file resta sul tuo telefono.</p>
+        <details class="altro"><summary>Oppure incolla il testo dell'offerta</summary>
+          <label for="off-testo" class="sr">Testo dell'offerta</label>
+          <textarea id="off-testo" rows="5" placeholder="es. dall'email o da WhatsApp: «Prezzo 0,40 €/kg, EER 16 01 19, validità 30 giorni…»"></textarea>
+          <div class="toolbar" style="margin-top:8px"><button class="btn" type="button" id="off-leggi">Leggi il testo</button></div>
+        </details>
+        <div id="off-esito" aria-live="polite"></div>
+      </div>
       <div id="p-righe" class="list" style="margin-top:6px"></div>
       <div class="toolbar" style="margin-top:8px"><button class="btn" type="button" id="p-aggiungi">+ Aggiungi un rifiuto</button></div>
     </div>
@@ -877,6 +891,98 @@ function testoPreventivo(cliente, prev, oggi) {
   ].join("\n");
 }
 
+// Lettura dell'offerta di un impianto (testo estratto da un PDF o letto da una foto) — OMO Agency 21/11/2026.
+// Funzioni pure e deterministiche: trovano prezzo, codici EER, impianto, numero, data, validità e condizioni.
+// Quello che non trovano lo dicono in «mancanti»: non inventano mai. La persona conferma sempre prima di usare i dati.
+// Dipendenza: estraiCodici (clienti.mjs), passata come parametro.
+
+const numIt = (s) => {
+  let t = String(s).replace(/\s/g, "");
+  if (/,\d{1,3}$/.test(t)) t = t.replace(/\./g, "").replace(",", "."); // 1.250,00 → 1250.00 ; 0,40 → 0.40
+  else if (/^\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, ""); // 1.250 → 1250
+  const n = Number(t);
+  return Number.isFinite(n) ? n : null;
+};
+const UNITA = [[/^(kg|kilo\w*|chil\w*)$/i, "kg", 1000], [/^(q|ql|quintal\w*)$/i, "q", 10], [/^(t|ton\w*)$/i, "t", 1]];
+const unita = (u) => UNITA.find(([re]) => re.test(u));
+const NUM = String.raw`(\d+[.,]\s?\d+(?:[.,]\d+)?|\d{1,3}(?:\.\d{3})+(?:,\d+)?|\d+)`; // prima i decimali: «0.38», «0,40», «1.250,00»
+const EURO = String.raw`(?:€|euro|eur)`;
+const UN = String.raw`(kg|kilo\w*|chil\w*|quintal\w*|ql|q|ton\w*|t)\b`;
+const SEP = String.raw`\s*(?:\/|al|alla|a|per|x)\s*`;
+
+function leggiOfferta(testo, { estraiCodici }) {
+  // la lettura da foto scambia lo zero con la lettera O («O.40»): torna zero se è attaccata a punto/virgola e cifre
+  const t = String(testo ?? "").replace(/[ \t]+/g, " ").replace(/(?<![A-Za-z])[Oo](?=[.,]\d)/g, "0");
+  const righe = t.split(/\r?\n/).map((r) => r.trim()).filter(Boolean);
+  const out = { prezzo: null, codici: [], impianto: "", numero: "", data: "", validitaGiorni: null, scadenza: "", pagamentoGiorni: null,
+    pesoADestino: /peso[^.\n]{0,60}destin/i.test(t), fideiussione: /fideiussion/i.test(t),
+    trasportoACuraNostra: /trasport\w*[^.\n]{0,30}((a\s+)?(vs\.?|vostr\w*)\s+(cura|carico)|a\s+cura\s+(del|vostr)|a\s+carico\s+(vostr|del))/i.test(t), mancanti: [] };
+
+  // Prezzo: «0,35 €/kg», «€ 1.250,00/t», «euro 85 a tonnellata», «€/ton 95»
+  const forme = [
+    new RegExp(`${NUM}\\s*${EURO}\\s*\\.?${SEP}${UN}`, "i"),
+    new RegExp(`${EURO}\\s*${NUM}${SEP}${UN}`, "i"),
+    new RegExp(`${EURO}\\s*\\/\\s*${UN}\\s*${NUM}`, "i"),
+  ];
+  for (const [i, re] of forme.entries()) {
+    const m = t.match(re);
+    if (!m) continue;
+    const [n, u] = i === 2 ? [m[2], m[1]] : [m[1], m[2]];
+    const v = numIt(n), k = unita(u);
+    if (v === null || !k) continue;
+    out.prezzo = { valore: v, unita: k[1], euroT: Math.round(v * k[2] * 100) / 100, testo: `${String(v).replace(".", ",").replace(/^(\d+),(\d)$/, "$1,$20")} €/${k[1]}` };
+    break;
+  }
+
+  // prima si tolgono date e numeri d'offerta, che sembrano codici (03.11.2026 → «11 20 26»)
+  // niente righe di telefoni, partite IVA, autorizzazioni: i loro numeri sembrano codici
+  const utili = t.split(/\r?\n/).filter((r) => !/\b(tel|fax|cell|p\.?\s?iva|partita iva|iban|aut\.)/i.test(r)).join("\n");
+  const senzaDate = utili.replace(/\b\d{1,2}[/.-]\d{1,2}[/.-]20\d{2}\b/g, " ").replace(/E\.?\s?E\.?\s?R\.?|C\.?\s?E\.?\s?R\.?/gi, " ");
+  const vicini = [...senzaDate.matchAll(/(?:cer|eer|codice|cod\.)[^\n\d]{0,12}([\d .]{6,10}\s?\*?)/gi)].flatMap((m) => estraiCodici(m[1]));
+  out.codici = [...new Set(vicini.length ? vicini : estraiCodici(senzaDate))];
+
+  // Impianto: la prima riga con una forma societaria che non sia il destinatario
+  const soc = /\b(s\.?\s?r\.?\s?l\.?\s?s?|s\.?\s?p\.?\s?a\.?|s\.?\s?n\.?\s?c\.?|s\.?\s?a\.?\s?s\.?|soc\.?\s?coop\w*)(\b|$)/i;
+  // l'impianto: prima la riga con etichetta (polo smaltimento, impianto, destinazione); mai il destinatario sotto «Spett.le»
+  const etich = righe.map((r) => r.match(/(?:polo\s+(?:di\s+)?smaltimento|impianto(?:\s+di\s+destino)?|destinazione)\s*:\s*(.+)/i)).find((m) => m && soc.test(m[1]));
+  const destinatario = new Set(); righe.forEach((r, i) => { if (/spett|c\.a\.|alla cortese/i.test(r)) { destinatario.add(i); destinatario.add(i + 1); } });
+  const r = etich ? etich[1] : righe.find((r, i) => soc.test(r) && !destinatario.has(i) && !/oggetto/i.test(r));
+  if (r) out.impianto = r.replace(/\s+/g, " ").trim().slice(0, 80);
+
+  const num = t.match(/\b(?:offerta|off\.?|of)\s*(?:n\.?|n°|nr\.?|num\.?|numero)\s*([A-Z0-9][\w/.-]*\d)/i);
+  if (num) out.numero = num[1];
+  const d = t.match(/\b(\d{1,2})[/.-](\d{1,2})[/.-](20\d{2})\b/);
+  const MESI = ["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
+  const dl = t.match(new RegExp("(?<!\\d)(\\d{1,2})\\s+(" + MESI.join("|") + ")\\s+(20\\d{2})(?!\\d)", "i"));
+  if (dl && (!d || t.indexOf(dl[0]) < t.indexOf(d[0]))) out.data = dl[3] + "-" + String(MESI.indexOf(dl[2].toLowerCase()) + 1).padStart(2, "0") + "-" + dl[1].padStart(2, "0");
+  else if (d) out.data = d[3] + "-" + d[2].padStart(2, "0") + "-" + d[1].padStart(2, "0");
+  const val = t.match(/validit\w*'?[^\d\n]{0,40}(\d{1,3})\s*(?:gg|giorni|gg\.)/i);
+  if (val) out.validitaGiorni = Number(val[1]);
+  const pag = t.match(/pagament\w*[^\d\n]{0,40}(\d{1,3})\s*(?:gg|giorni)/i);
+  if (pag) out.pagamentoGiorni = Number(pag[1]);
+  if (out.data && out.validitaGiorni) {
+    const s = new Date(out.data + "T00:00:00Z"); s.setUTCDate(s.getUTCDate() + out.validitaGiorni); out.scadenza = s.toISOString().slice(0, 10);
+  }
+
+  if (!out.prezzo) out.mancanti.push("prezzo");
+  if (!out.codici.length) out.mancanti.push("codice EER");
+  if (!out.impianto) out.mancanti.push("nome dell'impianto");
+  if (!out.validitaGiorni) out.mancanti.push("validità");
+  return out;
+}
+
+// Offerta letta → campi della riga del preventivo (la persona li vede e può correggerli)
+function rigaDaOfferta(o) {
+  const dIt = (iso) => iso.split("-").reverse().join("/");
+  const extra = [o.numero && `offerta ${o.numero}`, o.scadenza && `valida fino al ${dIt(o.scadenza)}`].filter(Boolean).join(", ");
+  return {
+    cer: o.codici[0] || "",
+    offerta: o.prezzo ? String(o.prezzo.valore).replace(".", ",").replace(/^(\d+),(\d)$/, "$1,$20") : "",
+    unita: o.prezzo ? (o.prezzo.unita === "kg" ? "kg" : "t") : "t",
+    impianto: (o.impianto || "Impianto") + (extra ? ` (${extra})` : ""),
+  };
+}
+
 (function(){
   const $ = (id) => document.getElementById(id);
   // punto delle migliaia anche sui numeri a 4 cifre (4.308,00 €), come nel testo del preventivo
@@ -1107,6 +1213,77 @@ function testoPreventivo(cliente, prev, oggi) {
     const c = clientiLista().find(x => x.nomeCompleto.toLowerCase() === scritto) || clientiLista().find(x => x.nome.toLowerCase() === scritto);
     if (!c) { $("p-copiato").textContent = "Cliente non trovato nella lista clienti."; return; }
     apriPreventivo(c, false);
+  });
+  // Offerta dell'impianto da PDF, foto o testo incollato: si legge sul telefono, la persona conferma, poi va nel preventivo.
+  // Librerie caricate solo quando servono: pdf.js (cdnjs) per i PDF, Tesseract (jsdelivr) per foto e PDF scansionati.
+  const PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js", PDFW = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  const TESS = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/";
+  const caricaScript = (src) => new Promise((ok, ko) => { if (document.querySelector(`script[src="${src}"]`)) return ok(); const x = document.createElement("script"); x.src = src; x.onload = ok; x.onerror = () => ko(new Error("rete")); document.head.appendChild(x); });
+  const statoOff = (t) => { $("off-stato").textContent = t; };
+  async function leggiFoto(immagini){ // una foto, o le pagine di un PDF scansionato
+    await caricaScript(TESS + "tesseract.min.js");
+    statoOff("Preparo la lettura (la prima volta scarica circa 6 MB)…");
+    const w = await Tesseract.createWorker("ita", 1, { workerPath: TESS + "worker.min.js", corePath: "https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1",
+      langPath: "https://cdn.jsdelivr.net/npm/@tesseract.js-data/ita@1.0.0/4.0.0_best_int",
+      logger: (m) => { if (m.status === "recognizing text") statoOff(`Leggo il testo… ${Math.round(m.progress * 100)}%`); } });
+    let testo = ""; for (const [n, img] of [].concat(immagini).entries()) { if (n) statoOff(`Leggo la pagina ${n + 1}…`); testo += (await w.recognize(img)).data.text + "\n"; }
+    await w.terminate(); return testo;
+  }
+  async function leggiPdf(file){
+    await caricaScript(PDFJS); pdfjsLib.GlobalWorkerOptions.workerSrc = PDFW;
+    const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+    let t = "";
+    for (let n = 1; n <= Math.min(pdf.numPages, 3); n++) { const c = await (await pdf.getPage(n)).getTextContent(); t += c.items.map((i) => i.str + (i.hasEOL ? "\n" : " ")).join("") + "\n"; }
+    if (t.replace(/\s/g, "").length > 40) return t;
+    // PDF scansionato (come l'offerta del 20/11): disegno le pagine (fino a 3) e le leggo come foto
+    statoOff("È un PDF scansionato: lo leggo come una foto…"); const pagine = [];
+    for (let n = 1; n <= Math.min(pdf.numPages, 3); n++) { const pg = await pdf.getPage(n), vp = pg.getViewport({ scale: 2.5 }), cv = document.createElement("canvas");
+      cv.width = vp.width; cv.height = vp.height; await pg.render({ canvasContext: cv.getContext("2d"), viewport: vp }).promise; pagine.push(cv); }
+    return leggiFoto(pagine);
+  }
+  let OFF = null;
+  function mostraOfferta(testo){
+    OFF = leggiOfferta(testo, { estraiCodici }); const r = rigaDaOfferta(OFF);
+    const info = [OFF.numero && "offerta " + OFF.numero, OFF.data && "del " + dIt(OFF.data), OFF.scadenza && "valida fino al " + dIt(OFF.scadenza),
+      OFF.pagamentoGiorni && `pagamento ${OFF.pagamentoGiorni} gg`, OFF.pesoADestino && "peso rilevato a destino", OFF.fideiussione && "con fideiussione",
+      OFF.trasportoACuraNostra && "trasporto a carico vostro"].filter(Boolean);
+    $("off-esito").innerHTML = `<div class="card ${OFF.mancanti.length ? "attenzione" : "ok"}">
+      <strong>Ho letto dall'offerta: controlla e conferma</strong>
+      <div class="campi">
+        <div class="largo"><label for="off-imp">Impianto</label><input id="off-imp" value="${esc(r.impianto)}"></div>
+        <div><label for="off-cer">Codice EER</label><input id="off-cer" value="${esc(r.cer)}"${OFF.codici.length > 1 ? ` list="off-codici"` : ""}>${OFF.codici.length > 1 ? `<datalist id="off-codici">${OFF.codici.map((c) => `<option value="${c}">`).join("")}</datalist>` : ""}</div>
+        <div><label for="off-prezzo">Prezzo dell'impianto</label><input id="off-prezzo" inputmode="decimal" value="${esc(r.offerta)}"></div>
+        <div><label for="off-unita">Unità</label><select id="off-unita"><option value="t"${r.unita !== "kg" ? " selected" : ""}>€/t</option><option value="kg"${r.unita === "kg" ? " selected" : ""}>€/kg</option></select></div>
+      </div>
+      ${OFF.codici.length > 1 ? `<div class="muted">Nell'offerta ci sono più codici: ${OFF.codici.join(", ")}.</div>` : ""}
+      ${info.length ? `<div class="muted">${esc(info.join(" · "))}</div>` : ""}
+      ${OFF.mancanti.length ? `<div class="avviso">Non ho trovato: ${esc(OFF.mancanti.join(", "))}. Completa tu i campi.</div>` : ""}
+      <div class="toolbar"><button class="btn" type="button" id="off-usa">Usa nel preventivo</button></div>
+      <details><summary class="muted">Testo letto</summary><pre>${esc(testo)}</pre></details>
+    </div>`;
+    $("off-usa").addEventListener("click", usaOfferta);
+    statoOff(OFF.mancanti.length ? "Letta, ma manca qualcosa: completa i campi qui sotto." : "Letta: controlla i dati e conferma.");
+  }
+  function usaOfferta(){
+    const cer = normalizzaCER($("off-cer").value || "");
+    if (!cer) { statoOff("Scrivi il codice EER dell'offerta."); return; }
+    const dati = { offerta: $("off-prezzo").value.trim(), unita: $("off-unita").value, impianto: $("off-imp").value.trim() };
+    let i = PRIGHE.findIndex((x) => normalizzaCER(x.cer || "")?.codice === cer.codice);
+    if (i < 0) { const v = trovaVoce(INDICE, cer.codice); PRIGHE.push({ descrizione: v ? corto(v.descrizione) : "", cer: cer.etichetta, tonnellate: "", trasporto: "cliente" }); i = PRIGHE.length - 1; }
+    Object.assign(PRIGHE[i], dati);
+    disegnaRighe(); calcola();
+    statoOff(`Offerta messa sul rifiuto ${cer.etichetta}: scrivi le tonnellate.`);
+  }
+  $("off-leggi").addEventListener("click", () => { const t = $("off-testo").value; if (t.trim()) mostraOfferta(t); });
+  $("off-file").addEventListener("change", async (e) => {
+    const file = e.target.files && e.target.files[0]; if (!file) return;
+    statoOff(`Leggo ${file.name}…`);
+    try {
+      const t = /\.pdf$/i.test(file.name) || file.type === "application/pdf" ? await leggiPdf(file)
+        : /^text\//.test(file.type) || /\.txt$/i.test(file.name) ? await file.text() : await leggiFoto(file);
+      mostraOfferta(t);
+    } catch (err) { statoOff("Non riesco a leggere il file qui (serve la connessione la prima volta). Puoi incollare il testo o scrivere i dati a mano."); }
+    e.target.value = "";
   });
   $("p-copia").addEventListener("click", async () => {
     try { await navigator.clipboard.writeText($("p-testo").value); $("p-copiato").textContent = "Copiato."; }
