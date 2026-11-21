@@ -802,6 +802,8 @@ function rifiuto(r, m, riga, cerTesto, indice, { cercaCER, trovaVoce, consiglio 
 // e non scaduti; mezzo = il più capiente tra quelli autorizzati al codice (pericolosi solo su mezzo abilitato);
 // viaggi = tonnellate / portata arrotondato per eccesso; trasporto = viaggi × km × 2 (andata e ritorno) × €/km;
 // ricarico sui costi; se l'impianto paga il materiale (tariffa negativa) il ricavo si scala senza ricarico.
+// Enzo (email 20/11/2026): «il trasporto viene sempre quotato a parte, se richiesto, altrimenti se ne occupa il produttore»:
+// smaltimento (€/t) e trasporto sono due voci separate; trasporto "cliente" = lo fa il produttore.
 
 const PARAMETRI_PREVENTIVO = { euroKm: 1.5, ricaricoPct: 25, aliquotaIva: 22, validitaGiorni: 30 };
 const arrot = (x) => Math.round(x * 100) / 100;
@@ -834,8 +836,11 @@ function preventivoVeloce({ righe, km, mezzi, impianti, oggi, parametri = {} }, 
     const costoImpianto = arrot(t * imp.tariffa);
     const costoTrasporto = arrot(viaggi * Number(km) * 2 * p.euroKm);
     const costi = costoTrasporto + Math.max(costoImpianto, 0);
-    const prezzo = arrot(costi * (1 + p.ricaricoPct / 100) + Math.min(costoImpianto, 0));
-    Object.assign(riga, { impianto: imp.nome, daOfferta, mezzo: trasportoCliente ? "a cura del cliente" : `${mezzo.tipo} ${mezzo.targa}`, viaggi, costoImpianto, costoTrasporto, prezzo, prezzoTonnellata: arrot(prezzo / t) });
+    const k = 1 + p.ricaricoPct / 100;
+    const prezzoSmaltimento = arrot(Math.max(costoImpianto, 0) * k + Math.min(costoImpianto, 0));
+    const prezzoTrasporto = arrot(costoTrasporto * k);
+    const prezzo = arrot(prezzoSmaltimento + prezzoTrasporto);
+    Object.assign(riga, { impianto: imp.nome, daOfferta, mezzo: trasportoCliente ? "a cura del produttore" : `${mezzo.tipo} ${mezzo.targa}`, viaggi, costoImpianto, costoTrasporto, prezzo, prezzoSmaltimento, prezzoTrasporto, prezzoTonnellata: arrot(prezzoSmaltimento / t) });
     out.push(riga);
   }
   const valide = out.filter((r) => !r.problemi.length);
@@ -858,7 +863,7 @@ function linkWhatsApp(testo, numero = "") {
 // Testo pronto da mandare al cliente (WhatsApp o email). Niente costi interni, solo prezzi.
 function testoPreventivo(cliente, prev, oggi) {
   const righe = prev.righe.filter((r) => !r.problemi.length).map((r) =>
-    `• ${r.descrizione ? r.descrizione + " " : ""}(CER ${r.cer}), circa ${String(r.tonnellate).replace(".", ",")} t: ${r.prezzo < 0 ? euroTxt(-r.prezzo) + " a vostro favore" : euroTxt(r.prezzo) + ` (${euroTxt(r.prezzoTonnellata)}/t)`} (${r.viaggi === 0 ? "trasporto a vostra cura" : r.viaggi === 1 ? "trasporto incluso, 1 viaggio" : `trasporto incluso, ${r.viaggi} viaggi`})`);
+    `• ${r.descrizione ? r.descrizione + " " : ""}(CER ${r.cer}), circa ${String(r.tonnellate).replace(".", ",")} t: ${r.prezzoSmaltimento < 0 ? euroTxt(-r.prezzoSmaltimento) + " a vostro favore" : euroTxt(r.prezzoSmaltimento) + ` (${euroTxt(r.prezzoTonnellata)}/t)`}${r.viaggi === 0 ? ", trasporto a cura del produttore" : ` + trasporto su richiesta ${euroTxt(r.prezzoTrasporto)} (${r.viaggi === 1 ? "1 viaggio" : r.viaggi + " viaggi"})`}`);
   return [
     `Preventivo ritiro e smaltimento rifiuti per ${cliente}`,
     `Data ${dataIt(oggi)}, valido fino al ${dataIt(piuGiorni(oggi, prev.parametri.validitaGiorni))}`,
@@ -1013,7 +1018,7 @@ function testoPreventivo(cliente, prev, oggi) {
   // Preventivo veloce
   const num = (s) => { const n = Number(String(s).replace(",", ".")); return Number.isFinite(n) ? n : 0; };
   let PRIGHE = [
-    { descrizione: "calcinacci", cer: "17 01 07", tonnellate: "20" },
+    { descrizione: "calcinacci", cer: "17 01 07", tonnellate: "20", trasporto: "nostro" },
     { descrizione: "plastiche da demolizione auto", cer: "16 01 19", tonnellate: "8", offerta: "0,35", unita: "kg", impianto: "Impianto plastiche (demo)", trasporto: "cliente" },
   ];
   function clientiLista(){ return importaClienti(RIGHE, INDICE, { cercaCER, trovaVoce, consiglio }).clienti; }
@@ -1034,7 +1039,7 @@ function testoPreventivo(cliente, prev, oggi) {
         <div class="largo"><label for="pr-d${i}">Rifiuto</label><input id="pr-d${i}" value="${esc(r.descrizione)}" placeholder="es. calcinacci"></div>
         <div><label for="pr-c${i}">Codice CER</label><input id="pr-c${i}" value="${esc(r.cer)}"></div>
         <div><label for="pr-t${i}">Tonnellate stimate</label><input id="pr-t${i}" inputmode="decimal" value="${esc(r.tonnellate)}"></div>
-        <div><label for="pr-tr${i}">Trasporto</label><select id="pr-tr${i}"><option value="nostro"${r.trasporto!=="cliente"?" selected":""}>A nostro carico</option><option value="cliente"${r.trasporto==="cliente"?" selected":""}>A cura del cliente</option></select></div>
+        <div><label for="pr-tr${i}">Trasporto</label><select id="pr-tr${i}"><option value="cliente"${r.trasporto!=="nostro"?" selected":""}>Lo fa il produttore</option><option value="nostro"${r.trasporto==="nostro"?" selected":""}>Lo quotiamo a parte</option></select></div>
       </div>
       <details class="offerta"${String(r.offerta||"").trim() ? " open" : ""}><summary>Ho l'offerta dell'impianto${String(r.offerta||"").trim() ? `: ${esc(r.offerta)} €/${r.unita==="kg"?"kg":"t"}` : ""}</summary>
         <div class="campi">
@@ -1057,7 +1062,7 @@ function testoPreventivo(cliente, prev, oggi) {
     });
   }
   function calcola(){
-    const prev = preventivoVeloce({ righe: PRIGHE.map(r => ({ descrizione: r.descrizione, cer: r.cer, tonnellate: num(r.tonnellate), trasporto: r.trasporto,
+    const prev = preventivoVeloce({ righe: PRIGHE.map(r => ({ descrizione: r.descrizione, cer: r.cer, tonnellate: num(r.tonnellate), trasporto: r.trasporto === "nostro" ? "nostro" : "cliente",
         offertaImpianto: r.impianto, offertaEuroT: String(r.offerta||"").trim() === "" ? "" : num(r.offerta) * (r.unita === "kg" ? 1000 : 1) })), km: num($("p-km").value), mezzi: MEZZI, impianti: IMPIANTI, oggi: OGGI,
       parametri: { euroKm: num($("p-eurokm").value), ricaricoPct: num($("p-ricarico").value) } }, { normalizzaCER, statoScadenza });
     $("p-risultato").innerHTML = `
